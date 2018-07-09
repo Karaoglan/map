@@ -15,15 +15,61 @@ export class AppComponent implements OnInit {
 
   fileToUpload: File = null;
   isFileUploaded: boolean = false;
+//[hidden]="isFileUploaded"
 
   closeResult: string;
+
+  //TODO statistic mock values
+  numberOfGooglePlaces = 100;
+  numberOfOpenPlaces = 50;
+
+  numberOfTrueOpen = 30;
+  numberOfFalseOpen = this.numberOfOpenPlaces - this.numberOfTrueOpen;
+
+
+  width = 600;
+  height = 400;
+  type = 'pie3d';
+  dataFormat = 'json';
+  dataSource = {
+    "chart": {
+      "caption": "Openstreetmap places names mapping",
+      "subcaption": "Comparing to Google Maps Places",
+      "startingangle": "120",
+      "showlabels": "0",
+      "showlegend": "1",
+      "enablemultislicing": "0",
+      "slicingdistance": "15",
+      "showpercentvalues": "1",
+      "showpercentintooltip": "0",
+      "plottooltext": "Age group : $label Total visit : $datavalue",
+      "theme": "ocean"
+    },
+    "data": [
+      {
+        "label": "OpenstreetTrue",
+        "value": "30",
+        "color": "#3ADF00"
+      },
+      {
+        "label": "OpenstreetFalse",
+        "value": "20",
+        "color": "#FF0000"
+      },
+      {
+        "label": "OpenstreetNotmapped",
+        "value": "50",
+        "color": "#A9F5F2"
+      }
+    ]
+  };
 
   constructor(private demoService: DemoService,
               private modalService: NgbModal) {
   }
 
   open(content) {
-    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then((result) => {
+    this.modalService.open(content, {size: 'lg', ariaLabelledBy: 'modal-basic-title'}).result.then((result) => {
       this.closeResult = `Closed with: ${result}`;
     }, (reason) => {
       this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
@@ -65,8 +111,6 @@ export class AppComponent implements OnInit {
 
         var marker;
         var i = 0;
-
-
 
         for (let coordinate of keys) {
           //coordinate = 123.3 80.3
@@ -114,18 +158,13 @@ export class AppComponent implements OnInit {
           i++;
 
         }
+
       }
     }
 
   }
 
   handleFileInput(files: FileList) {
-
-    var bound = new google.maps.LatLngBounds();
-    bound.extend( new google.maps.LatLng(locations[i][2], locations[i][3]) );
-
-    console.log( bound.getCenter() );
-
 
     console.info("in post and get");
 

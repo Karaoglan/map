@@ -17,15 +17,14 @@
 
   <div>
 
-    <div [hidden]="isFileUploaded" class="form-group">
+    <div class="form-group">
       <label for="file">Choose File</label>
       <input type="file"
              id="file"
              (change)="handleFileInput($event.target.files)">
     </div>
 
-    <div [hidden]="!isFileUploaded"
-         id="map" class="google-map"></div>
+    <div id="map" class="google-map"></div>
 
   </div>
 </div>
@@ -41,8 +40,20 @@
   <div class="modal-body">
     <form>
       <div class="form-group">
-        KARAOGLAN
+        <br>
+        google all : {{numberOfGooglePlaces}} <br>
+        open all : {{numberOfOpenPlaces}}  <br>
+        open true : {{numberOfTrueOpen}}  <br>
+        open false : {{numberOfFalseOpen}} <br>
       </div>
+      <fusioncharts
+        [width]="width"
+        [height]="height"
+        [type]="type"
+        [dataFormat]="dataFormat"
+        [dataSource]="dataSource">
+      </fusioncharts>
+
     </form>
   </div>
   <div class="modal-footer">

@@ -24,6 +24,7 @@
     "@angular/router": "^6.0.3",
     "@ng-bootstrap/ng-bootstrap": "^2.2.0",
     "@types/googlemaps": "^3.30.9",
+    "angular2-fusioncharts": "^1.0.3",
     "bootstrap": "^4.1.1",
     "core-js": "^2.5.4",
     "ngx-bootstrap": "^3.0.1",
