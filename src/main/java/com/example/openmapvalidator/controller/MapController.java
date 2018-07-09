@@ -1,11 +1,11 @@
 package com.example.openmapvalidator.controller;
 
 import com.example.openmapvalidator.service.FileToDB;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +24,8 @@ import java.util.Map;
 @RequestMapping("/maps")
 public class MapController {
 
+    private static final Logger logger = LoggerFactory.getLogger(MapController.class);
+
     private final FileToDB fileToDBService;
 
     @Autowired
@@ -36,8 +38,6 @@ public class MapController {
 
         try {
             File localFile = new File(new ClassPathResource("map").getFile(), file.getOriginalFilename());
-
-            //FileUtils.copyInputStreamToFile(file, new ClassPathResource("map").getFile());
             FileUtils.writeByteArrayToFile(localFile, file.getBytes());
 
         } catch (IOException e) {
@@ -46,6 +46,10 @@ public class MapController {
 
         Map<String, Map<String, String>> map =
                 fileToDBService.saveAndCallForPlaceCoordinates(file.getOriginalFilename());
+
+
+        logger.debug("****Returned Map Json");
+        logger.debug(new Gson().toJson(map));
 
         return map;
 

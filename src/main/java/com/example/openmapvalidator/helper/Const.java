@@ -1,17 +1,26 @@
 package com.example.openmapvalidator.helper;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
-@Component
+
+@Configuration
+@ComponentScan(basePackages = { "com.example.*" })
+@PropertySource({"classpath:config.properties", "classpath:application.properties"})
 public class Const {
-    public static final String EMPTY = "";
-    public static final String OPEN_QUOTE = "\"";
-    public static final String CLOSE_QUOTE = "\"";
+
+    public static final String OS_NAME = "os.name";
+    public static final String OS_WINDOWS_NAME = "windows";
+    public static final String BASH_SCRIPTS_ROOT = "../../../bashscript/";
+    public static final String OSM_WINDOWS_ROOT = "windows/osm2pgsql-bin/";
+    public static final String OSM_UNIX_ROOT = "unix/osm2pgsql/bin/";
+    public static final String OSM_FILE_DIR = "map";
+    public static final String OSM_PSQL_PLACE_SELECT_QUERY_IDENTIFIER = "selectPlaces";
+
 
     public static String OPENSTREET_URI_GET_LONG_WITH_OSM_ID;
-    public static String GOOGLE_URI_SEARCH_WITH_LONG;
-    public static String GOOGLE_RETRIEVE_WITH_PLACE_ID;
     public static String GOOGLE_SEARCH_NEARBY;
     public static String FOURSQUARE_URI_SEARCH_WITH_LONG;
     public static String MICROSOFTMAP_SEARCH_WITH_LONG;
@@ -47,16 +56,6 @@ public class Const {
     @Value("${openstreet.getlongwithosmid}")
     public void setOpenstreetUriGetLongWithOsmId(String openWithLong) {
         OPENSTREET_URI_GET_LONG_WITH_OSM_ID = openWithLong;
-    }
-
-    @Value("${googlemap.searchplacewithlong}")
-    public void setGoogleUriSearchWithLong(String searchWithLong) {
-        GOOGLE_URI_SEARCH_WITH_LONG = searchWithLong;
-    }
-
-    @Value("${googlemap.retrievewithplaceid}")
-    public void setGoogleRetrieveWithPlaceId(String retrieveWithPlaceId) {
-        GOOGLE_RETRIEVE_WITH_PLACE_ID = retrieveWithPlaceId;
     }
 
     @Value("${foursquare.searchplacewithlong}")

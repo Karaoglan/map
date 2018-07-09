@@ -19,7 +19,6 @@ export class DemoService {
   }
 
   private extractData(res: HttpResponse<any>) {
-    //let body = res.json();
     return res;
   }
 
@@ -29,12 +28,6 @@ export class DemoService {
   }
 
   upload(file: File): Observable<HttpEvent<{}>>{
-    /*let headers = new Headers();
-    let options = new RequestOptions({ headers: headers });
-    return  this.http.post(this.articleUrl, file, options)
-      .map(response => response.json())
-      .catch(error => Observable.throw(error));
-*/
     let formdata: FormData = new FormData();
 
     formdata.append('file', file);

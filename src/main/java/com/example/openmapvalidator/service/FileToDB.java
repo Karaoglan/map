@@ -1,7 +1,6 @@
 package com.example.openmapvalidator.service;
 
 import com.example.openmapvalidator.helper.Const;
-import com.example.openmapvalidator.helper.PlaceCategoryMapper;
 import com.example.openmapvalidator.model.foursquare.FoursquareResult;
 import com.example.openmapvalidator.model.google.GoogleResult;
 import com.example.openmapvalidator.model.microsoft.MicrosoftResult;
@@ -11,9 +10,6 @@ import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,31 +50,28 @@ public class FileToDB {
     @Autowired
     DocumentBuilderFactory dbFactory;
 
-    private static final ConcurrentMap<String, ConcurrentMap<String, String>> mapNameQueue = new ConcurrentHashMap<>();
-
-
     private void osmFileToDB(String fileName) {
 
-        boolean isWindows = System.getProperty("os.name")
-                .toLowerCase().startsWith("windows");
+        boolean isWindows = System.getProperty(Const.OS_NAME)
+                .toLowerCase().startsWith(Const.OS_WINDOWS_NAME);
 
         try {
 
-            String osmCommandPathRoot = "../../../bashscript/";
+            String osmCommandPathRoot = Const.BASH_SCRIPTS_ROOT;
             ProcessBuilder builder = new ProcessBuilder();
             if (isWindows) {
 
-                osmCommandPathRoot += "windows/osm2pgsql-bin/";
+                osmCommandPathRoot += Const.OSM_WINDOWS_ROOT;
                 builder.command(osmCommandPathRoot + Const.OSM_COMMAND, Const.OSM_COMMAND_CREATE_OPTION,
                         Const.OSM_COMMAND_USERNAME_OPTION, Const.PSQL_USERNAME, Const.OSM_COMMAND_DATABASE_OPTION,
                         Const.OSM_COMMAND_DATABASE_ARGUMENT, fileName);
             } else {
-                osmCommandPathRoot += "unix/osm2pgsql/bin/";
+                osmCommandPathRoot += Const.OSM_UNIX_ROOT;
                 builder.command(osmCommandPathRoot + Const.OSM_COMMAND, Const.OSM_COMMAND_CREATE_OPTION,
                         Const.OSM_COMMAND_DATABASE_OPTION, Const.OSM_COMMAND_DATABASE_ARGUMENT, fileName);
             }
 
-            builder.directory(new ClassPathResource("map").getFile());
+            builder.directory(new ClassPathResource(Const.OSM_FILE_DIR).getFile());
             Process process = builder.start();
             StreamGobbler streamGobbler =
                     new StreamGobbler(process.getInputStream(), System.out::println);
@@ -117,34 +110,31 @@ public class FileToDB {
             osmFileToDB(fileName);
 
             SqlSession session = getDBSession();
-            List<PlaceDBModel> list = session.selectList("selectPlaces");
+            List<PlaceDBModel> list = session.selectList(Const.OSM_PSQL_PLACE_SELECT_QUERY_IDENTIFIER);
 
-            ExecutorService executorService = Executors.newFixedThreadPool(list.size());
+            ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
+            long beforeTime = System.currentTimeMillis();
 
             for (PlaceDBModel model : list) {
-                Map<String, Map<String, String>> temporaryNameMap = new HashMap<>();
 
                 logger.debug("Id: " + model.getOsm_id() + " Name: " + model.getName());
 
-                /*try {
-                    PlaceDBModel model1 = executorService.submit(model).get();
-                    System.out.println(App.truckList[i]);
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace(System.err);
-                }
-
-                makeApiCallForPlaceToCompare(model);*/
-
-                temporaryNameMap.putAll(makeApiCallForPlaceToCompare(model));
-                temporaryNameMap.putAll(nameMap);
-
-                nameMap = temporaryNameMap;
+                executorService.execute(() -> {
+                    nameMap.putAll(makeApiCallForPlaceToCompare(model));
+                });
 
             }
 
+            executorService.shutdown();
+            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+
             logger.debug("");
 
+            long endTime = System.currentTimeMillis();
+
+            logger.debug("---******* run time for putting values inside map after compare -> {}", (int) ((endTime -
+                    beforeTime) / 1000) % 60);
             session.close();
         }
         catch (Exception e) {
@@ -154,20 +144,6 @@ public class FileToDB {
         return nameMap;
 
 
-    }
-
-    /**
-     * place category could be either amenity or shop attribute if amenity is not null it has priority
-     *
-     * @param dbModel
-     * @return
-     */
-    private String getPlaceCategoryFromDBObject(PlaceDBModel dbModel) {
-        if (dbModel.getAmenity() != null) {
-            return dbModel.getAmenity();
-        }
-
-        return dbModel.getShop();
     }
 
     /**
@@ -211,7 +187,7 @@ public class FileToDB {
         return longAndLatMap;
     }
 
-    private FoursquareResult makeFourSquareApiCall(String lat, String lon, String categoryId) throws IOException {
+    private FoursquareResult makeFourSquareApiCall(String lat, String lon) throws IOException {
 
         String foursquareUriSearch = Const.FOURSQUARE_URI_SEARCH_WITH_LONG.replace("@LAT", lat)
                 .replace("@LON", lon);
@@ -230,15 +206,11 @@ public class FileToDB {
      *
      * @param lat
      * @param log
-     * @param category
      * @return
      * @throws IOException
      */
-    private GoogleResult makeGooglePlaceApiCall(String lat, String log, String category) throws IOException {
+    private GoogleResult makeGooglePlaceApiCall(String lat, String log) throws IOException {
 
-        /*String googleUriSearch = Const.GOOGLE_URI_SEARCH_WITH_LONG.replace("@LAT", lat)
-                .replace("@LONG", log)
-                .replace("@CATEGORY", category);*/
         String googleUriSearch = Const.GOOGLE_SEARCH_NEARBY.replace("@LAT", lat)
                 .replace("@LONG", log);
 
@@ -271,31 +243,6 @@ public class FileToDB {
 
     /**
      *
-     * Retrieve google place with placeid in order to take name of a place
-     *TODO NO NEENED ANYMORE
-     * @param placeId
-     * @return
-     * @throws ParseException
-     */
-    private String makeGooglePlaceDetailCallWithPlaceID(String placeId) throws ParseException {
-        String googleRetrieveWithPlace = Const.GOOGLE_RETRIEVE_WITH_PLACE_ID.replace("@PLACE_ID", placeId);
-
-        String googlePlaceDetailStr = restTemplate.getForObject(
-                googleRetrieveWithPlace, String.class);
-
-
-        org.json.simple.JSONObject obj;
-
-        JSONParser parser = new JSONParser();
-        obj = (org.json.simple.JSONObject) parser.parse(googlePlaceDetailStr);
-
-        org.json.simple.JSONObject resultObject = (JSONObject) obj.get("result");
-
-        return (String) resultObject.get("name");
-    }
-
-    /**
-     *
      * get result from google and compare with node
      *
      * @param node
@@ -305,17 +252,6 @@ public class FileToDB {
 
         Map<String, Map<String, String>> nameMap = new HashMap<>();
 
-        // GOOGLE
-     //   String openstreetCategory = getPlaceCategoryFromDBObject(node);
-    //    Map<String, String> otherMapCategories = PlaceCategoryMapper.getOpenToOtherMaps().get(openstreetCategory);
-//        String googleCategory = otherMapCategories.get("google");
-
-    /*    if (googleCategory == null) {
-            googleCategory = Const.OPEN_QUOTE + Const.CLOSE_QUOTE;
-            logger.debug("!GOOGLE TYPE COULD NOT MAPPED FROM FOLLOWING OPENSTREET PLACE CATEGORY - {}",
-                    openstreetCategory);
-        }*/
-
         try {
 
             Map<String, String> latitudeAndLongitudeMap = makeOpenStreetApiCallWithOSMID(node);
@@ -324,41 +260,45 @@ public class FileToDB {
             String lat = latitudeAndLongitudeMap.get("lat");
             String lon = latitudeAndLongitudeMap.get("lon");
 
-            GoogleResult googleResult = makeGooglePlaceApiCall(lat, lon, null);
+            // GOOGLE
+            GoogleResult googleResult = makeGooglePlaceApiCall(lat, lon);
 
-            String nameResultFromGooglePlace = "NULL";
+            String nameResultFromGooglePlace = "NOT PRESENT";
 
             if (!googleResult.getResults().isEmpty()) {
-                //String PLACE_ID = googleResult.getResults().get(0).getPlace_id();
-                //logger.debug(PLACE_ID);
-
-                //nameResultFromGooglePlace = makeGooglePlaceDetailCallWithPlaceID(PLACE_ID);
                 nameResultFromGooglePlace = googleResult.getResults().get(0).getName();
             }
 
             // FOURSQUARE
-            //String foursquareCategory = otherMapCategories.get("foursquare");
-            FoursquareResult foursquareResult = makeFourSquareApiCall(lat, lon, null);
+            FoursquareResult foursquareResult = makeFourSquareApiCall(lat, lon);
 
-            String foursquareName = "NULL";
+            String foursquareName = "NOT PRESENT";
             if (!foursquareResult.getResponse().getVenues().isEmpty()) {
                 foursquareName = foursquareResult.getResponse().getVenues().get(0).getName();
             }
+
+
+            // MICROSOFT
+            MicrosoftResult microsoftResult = makeMicrosoftPlaceApiCall(lat, lon);
+            String microsoftPlaceName = "NOT PRESENT";
+            if (!microsoftResult.getResourceSets().get(0).getResources().get(0).getBusinessesAtLocation().isEmpty()) {
+                microsoftPlaceName = microsoftResult.getResourceSets().get(0).
+                        getResources().get(0).
+                        getBusinessesAtLocation().get(0).
+                        getBusinessInfo().getEntityName();
+            }
+
 
             logger.debug("\n" + "*******COMPARE************");
             logger.debug("openst -> " + node.getName());
             logger.debug("googleMap -> " + nameResultFromGooglePlace);
             logger.debug("foursq -> " + foursquareName);
+            logger.debug("microsoft -> " + microsoftPlaceName);
 
             //logger.debug("compare -> " + nameResultFromGooglePlace.equals(node.getName()));
             logger.debug("*********FINISH**************" + "\n");
 
-            MicrosoftResult microsoftResult = makeMicrosoftPlaceApiCall(lat, lon);
-            String microsoftPlaceName = microsoftResult.getResourceSets().get(0).
-                    getResources().get(0).
-                    getBusinessesAtLocation().get(0).
-                    getBusinessInfo().getEntityName();
-
+            // TODO Compare functionality extract to method
             if (true) {//!nameResultFromGooglePlace.equals(node.getName())) {
                 String lngLat = latitudeAndLongitudeMap.get("lat") + "," + latitudeAndLongitudeMap.get("lon");
 
@@ -368,14 +308,13 @@ public class FileToDB {
                 mapOfNames.put("foursquare", foursquareName);
                 mapOfNames.put("microsoft", microsoftPlaceName);
                 nameMap.put(lngLat, mapOfNames);
+
             }
             //TODO burada istatistik icin bir degeri arttir else kisminda
 
 
         } catch (IOException e) {
             e.printStackTrace();
-       // } catch (ParseException e) {
-         //   e.printStackTrace();
         } catch (SAXException e) {
             e.printStackTrace();
         } catch (ParserConfigurationException e) {

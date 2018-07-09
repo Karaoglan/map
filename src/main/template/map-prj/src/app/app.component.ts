@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {DemoService} from "./app.service";
 
 import { } from '@types/googlemaps';
+import {ModalDismissReasons, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,28 @@ export class AppComponent implements OnInit {
   fileToUpload: File = null;
   isFileUploaded: boolean = false;
 
-  constructor(private demoService: DemoService) {
+  closeResult: string;
+
+  constructor(private demoService: DemoService,
+              private modalService: NgbModal) {
+  }
+
+  open(content) {
+    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then((result) => {
+      this.closeResult = `Closed with: ${result}`;
+    }, (reason) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+    });
+  }
+
+  private getDismissReason(reason: any): string {
+    if (reason === ModalDismissReasons.ESC) {
+      return 'by pressing ESC';
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return 'by clicking on a backdrop';
+    } else {
+      return  `with: ${reason}`;
+    }
   }
 
   ngOnInit() {
@@ -57,10 +79,22 @@ export class AppComponent implements OnInit {
           let foursqName = value["foursquare"];
           let microsoftName = value["microsoft"];
 
+
           let splitCoordinate = coordinate.split(',');
 
+          let lat = splitCoordinate[0];
+          let lon = splitCoordinate[1];
+
+          let openStreetMapLink = "<a target=\"_blank\" href=\"https://www.openstreetmap.org/#map=18/@LAT/@LON\">" +
+            "Open openstreetMap<a/>";
+          openStreetMapLink = openStreetMapLink
+            .replace("@LAT", lat)
+            .replace("@LON", lon);
+
+          console.info(openStreetMapLink);
+
           marker = new google.maps.Marker({
-            position: new google.maps.LatLng(Number(splitCoordinate[0]), Number(splitCoordinate[1])),
+            position: new google.maps.LatLng(Number(lat), Number(lon)),
             map: map
           });
 
@@ -68,9 +102,11 @@ export class AppComponent implements OnInit {
 
           google.maps.event.addListener(marker, 'click', (function(marker, i) {
             return function() {
-              infowindow.setContent('location' + i + " - " + "<br />" + "google: " + googleName +
+              infowindow.setContent('location(' + lat + "," + lon + ") - " + openStreetMapLink + "<br />" + "google:" +
+                " " + googleName +
                 "<br />" + "open: " +openName + "<br />" + "foursquare: " + foursqName
-                + "<br />" + "microsoft: " + microsoftName );
+                + "<br />" + "microsoft: " + microsoftName);
+
               infowindow.open(map, marker);
             }
           })(marker, i));
@@ -84,12 +120,17 @@ export class AppComponent implements OnInit {
   }
 
   handleFileInput(files: FileList) {
+
+    var bound = new google.maps.LatLngBounds();
+    bound.extend( new google.maps.LatLng(locations[i][2], locations[i][3]) );
+
+    console.log( bound.getCenter() );
+
+
     console.info("in post and get");
 
     this.fileToUpload = files.item(0);
     this.isFileUploaded = true;
-    //TODO success de
-
 
     this.demoService.upload(this.fileToUpload).subscribe(
       // the first argument is a function which runs on success
@@ -106,28 +147,4 @@ export class AppComponent implements OnInit {
 
 
   }
-
-  isEmpty(ob){
-    for(var i in ob){ return false;}
-    return true;
-  }
-
-  getData() {
-    console.info("in getdata");
-
-    this.demoService.getData().subscribe(
-      // the first argument is a function which runs on success
-      data => { console.log(data); this.data = data},
-      // the second argument is a function which runs on error
-      err => console.error(err),
-      // the third argument is a function which runs on completion
-      () => { console.log('done loading data'); this.ngOnInit(); }
-    );
-
-
-    console.info("out getdata");
-
-  }
-
-
 }
