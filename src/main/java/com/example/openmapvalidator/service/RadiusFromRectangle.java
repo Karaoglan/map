@@ -2,12 +2,16 @@ package com.example.openmapvalidator.service;
 
 import com.example.openmapvalidator.model.google.GoogleResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.maps.GeoApiContext;
+import com.google.maps.NearbySearchRequest;
+import com.google.maps.PendingResult;
+import com.google.maps.PlacesApi;
+import com.google.maps.model.GeocodingResult;
+import com.google.maps.model.PlacesSearchResponse;
+import com.google.maps.model.PlacesSearchResult;
 import com.javadocmd.simplelatlng.LatLng;
 import com.javadocmd.simplelatlng.LatLngTool;
 import com.javadocmd.simplelatlng.util.LengthUnit;
-import info.debatty.java.stringsimilarity.JaroWinkler;
-import info.debatty.java.stringsimilarity.Levenshtein;
-import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -17,10 +21,38 @@ public class RadiusFromRectangle {
     public static void main(String[] args) throws IOException {
 
         GeoApiContext context = new GeoApiContext.Builder()
-                .apiKey("AIza...")
+                .apiKey("AIzaSyB3juajX9XgIufeRCrOwpY1WRixHMQ9HSk")
                 .build();
 
+        com.google.maps.model.LatLng bony = new com.google.maps.model.LatLng(48.17951,16.326289);
+        NearbySearchRequest request = PlacesApi.nearbySearchQuery(context, bony);
 
+        request.radius(50);
+        // Synchronous
+        try {
+            request.await();
+            // Handle successful request.
+        } catch (Exception e) {
+            // Handle error
+        }
+
+        request.awaitIgnoreError();
+
+        // Async
+        /*request.setCallback(new PendingResult.Callback<Deneme>() {
+            @Override
+            public void onResult(Deneme[] result) {
+                // Handle successful request.
+            }
+
+            @Override
+            public void onFailure(Throwable e) {
+                // Handle error.
+            }
+        });*/
+
+
+        System.out.println(request);
 
         //new RadiusFromRectangle().main2();
 

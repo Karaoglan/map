@@ -13,6 +13,8 @@ export class AppComponent implements OnInit {
   title = 'OpenStreetMap Validator';
   data: any = {};
 
+  statisticData: any = {};
+
   fileToUpload: File = null;
   isFileUploaded: boolean = false;
 //[hidden]="isFileUploaded"
@@ -20,11 +22,9 @@ export class AppComponent implements OnInit {
   closeResult: string;
 
   //TODO statistic mock values
-  numberOfGooglePlaces = 100;
-  numberOfOpenPlaces = 50;
-
-  numberOfTrueOpen = 30;
-  numberOfFalseOpen = this.numberOfOpenPlaces - this.numberOfTrueOpen;
+  numberOfGooglePlaces;
+  numberOfOpenPlaces;
+  numberOfTrueOpen;
 
 
   width = 600;
@@ -48,17 +48,17 @@ export class AppComponent implements OnInit {
     "data": [
       {
         "label": "OpenstreetTrue",
-        "value": "30",
+        "value": this.numberOfTrueOpen,
         "color": "#3ADF00"
       },
       {
         "label": "OpenstreetFalse",
-        "value": "20",
+        "value": this.numberOfOpenPlaces - this.numberOfTrueOpen,
         "color": "#FF0000"
       },
       {
         "label": "OpenstreetNotmapped",
-        "value": "50",
+        "value": this.numberOfGooglePlaces - this.numberOfOpenPlaces,
         "color": "#A9F5F2"
       }
     ]
@@ -66,6 +66,7 @@ export class AppComponent implements OnInit {
 
   constructor(private demoService: DemoService,
               private modalService: NgbModal) {
+    this.handleStatistic();
   }
 
   open(content) {
@@ -97,8 +98,16 @@ export class AppComponent implements OnInit {
 
     var bony = {lat: 48.179519, lng: 16.326289};
 
+
+    if (this.statisticData.hasOwnProperty('numOfGooglePlaces')) {
+      this.numberOfGooglePlaces = this.statisticData["numOfGooglePlaces"];
+      this.numberOfOpenPlaces = this.statisticData["numOfOpenstreetMapPlaces"];
+    }
+
+
+
     // Create the places service.
-    var service = new google.maps.places.PlacesService(map);
+    /*var service = new google.maps.places.PlacesService(map);
     var getNextPage = null;
     var moreButton = document.getElementById('more');
     moreButton.onclick = function() {
@@ -117,7 +126,7 @@ export class AppComponent implements OnInit {
         getNextPage = pagination.hasNextPage && function() {
           pagination.nextPage();
         };
-      });
+      });*/
 
     if (this.data !== undefined) {
       if (this.data.body !== undefined) {
@@ -143,7 +152,7 @@ export class AppComponent implements OnInit {
 
         for (let coordinate of keys) {
           //coordinate = 123.3 80.3
-          let value = this.data[coordinate]
+          let value = this.data[coordinate];
           //value = google : name
           // open : name
 
@@ -191,6 +200,18 @@ export class AppComponent implements OnInit {
       }
     }
 
+  }
+
+  handleStatistic() {
+    this.demoService.statistic().subscribe(
+      // the first argument is a function which runs on success
+      data => { console.log('check THIS!!' + data); this.statisticData = data
+      },
+      // the second argument is a function which runs on error
+      err => console.error(err),
+      // the third argument is a function which runs on completion
+      () => { console.log('done loading data'); this.ngOnInit();}
+    );
   }
 
   handleFileInput(files: FileList) {

@@ -46,7 +46,7 @@
         google all : {{numberOfGooglePlaces}} <br>
         open all : {{numberOfOpenPlaces}}  <br>
         open true : {{numberOfTrueOpen}}  <br>
-        open false : {{numberOfFalseOpen}} <br>
+        open false : {{numberOfOpenPlaces - numberOfTrueOpen}} <br>
       </div>
       <fusioncharts
         [width]="width"

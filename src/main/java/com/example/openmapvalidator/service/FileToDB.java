@@ -25,10 +25,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,10 +48,43 @@ public class FileToDB {
     private RestTemplate restTemplate;
 
     @Autowired
-    DocumentBuilderFactory dbFactory;
+    private DocumentBuilderFactory dbFactory;
 
     @Autowired
-    JaroWinkler jaroWinklerApproach;
+    private JaroWinkler jaroWinklerApproach;
+
+    private class StreamWrapper extends Thread {
+        InputStream is = null;
+        String type = null;
+        String message = null;
+
+        public String getMessage() {
+            return message;
+        }
+
+        StreamWrapper(InputStream is, String type) {
+            this.is = is;
+            this.type = type;
+        }
+
+        public void run() {
+            try {
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                StringBuffer buffer = new StringBuffer();
+                String line = null;
+                while ( (line = br.readLine()) != null) {
+                    buffer.append(line);//.append("\n");
+                }
+                message = buffer.toString();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+        }
+    }
+
+    public StreamWrapper getStreamWrapper(InputStream is, String type){
+        return new StreamWrapper(is, type);
+    }
 
     private void osmFileToDB(String fileName) {
 
@@ -63,36 +93,55 @@ public class FileToDB {
 
         try {
 
-            String osmCommandPathRoot = Const.BASH_SCRIPTS_ROOT;
-            ProcessBuilder builder = new ProcessBuilder();
-            if (isWindows) {
+            String OSM_ROOT;
+            String cmd;
 
-                osmCommandPathRoot += Const.OSM_WINDOWS_ROOT;
-                builder.command(osmCommandPathRoot + Const.OSM_COMMAND, Const.OSM_COMMAND_CREATE_OPTION,
-                        Const.OSM_COMMAND_USERNAME_OPTION, Const.PSQL_USERNAME, Const.OSM_COMMAND_DATABASE_OPTION,
-                        Const.OSM_COMMAND_DATABASE_ARGUMENT, fileName);
+            if (isWindows) {
+                OSM_ROOT = Const.OSM_WINDOWS_ROOT;
+
+                String path = new ClassPathResource(OSM_ROOT).getFile().getAbsolutePath();
+
+                cmd = path + File.separator +
+                        Const.OSM_COMMAND + Const.SPACE + Const.OSM_COMMAND_CREATE_OPTION + Const.SPACE +
+                        Const.OSM_COMMAND_USERNAME_OPTION + Const.SPACE + Const.PSQL_USERNAME +
+                        Const.SPACE + Const.OSM_COMMAND_DATABASE_OPTION + Const.SPACE + Const.OSM_COMMAND_DATABASE_ARGUMENT +
+                        Const.SPACE + "-S" + Const.SPACE + path + File.separator + "default.style " + Const.SPACE +
+                        new ClassPathResource(Const.MAP_FOLDER_ROOT).getFile().getAbsolutePath() + File.separator + fileName;
+
             } else {
-                osmCommandPathRoot += Const.OSM_UNIX_ROOT;
-                builder.command(osmCommandPathRoot + Const.OSM_COMMAND, Const.OSM_COMMAND_CREATE_OPTION,
-                        Const.OSM_COMMAND_DATABASE_OPTION, Const.OSM_COMMAND_DATABASE_ARGUMENT, fileName);
+                OSM_ROOT = Const.OSM_UNIX_ROOT;
+                String path = new ClassPathResource(OSM_ROOT).getFile().getAbsolutePath();
+
+                cmd = path + File.separator + Const.OSM_COMMAND + Const.SPACE + Const.OSM_COMMAND_CREATE_OPTION +
+                        Const.SPACE + Const.OSM_COMMAND_DATABASE_OPTION + Const.SPACE + Const.OSM_COMMAND_DATABASE_ARGUMENT +
+                        Const.SPACE + Const.MAP_FOLDER_ROOT + fileName;
             }
 
-            builder.directory(new ClassPathResource(Const.OSM_FILE_DIR).getFile());
-            Process process = builder.start();
-            StreamGobbler streamGobbler =
-                    new StreamGobbler(process.getInputStream(), System.out::println);
-            Executors.newSingleThreadExecutor().submit(streamGobbler);
-            int exitCode = process.waitFor();
-            assert exitCode == 0;
+            logger.info(cmd);
 
-        } catch (IOException e) {
-            logger.debug("osm command execute exception happened - here's what I know: ");
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (InterruptedException e) {
+            Runtime rt = Runtime.getRuntime();
+            StreamWrapper error, output;
+
+            Process proc = rt.exec(cmd);
+            error = new FileToDB().getStreamWrapper(proc.getErrorStream(), "ERROR");
+            output = new FileToDB().getStreamWrapper(proc.getInputStream(), "OUTPUT");
+            int exitVal;
+
+            error.start();
+            output.start();
+            error.join(3000);
+            output.join(3000);
+            exitVal = proc.waitFor();
+            logger.info("exitVal: {}\nOutput: {}\nError: {}", exitVal, output.message, error.message);
+
+            if (exitVal != 0) {
+                logger.error("Please resolve error");
+                System.exit(1);
+            }
+        } catch(Exception e) {
+            logger.error(e.toString());
             e.printStackTrace();
         }
-
 
     }
 
@@ -125,7 +174,7 @@ public class FileToDB {
 
             for (PlaceDBModel model : list) {
 
-                logger.debug("Id: " + model.getOsm_id() + " Name: " + model.getName());
+                logger.debug("Id: {} & Name: {}", model.getOsm_id(), model.getName());
 
                 executorService.execute(() -> {
                     nameMap.putAll(makeApiCallForPlaceToCompare(model));
@@ -181,7 +230,7 @@ public class FileToDB {
         dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.parse(tmpFile);
         doc.getDocumentElement().normalize();
-        logger.debug("Root element :" + doc.getDocumentElement().getNodeName());
+        logger.debug("Root element : {}", doc.getDocumentElement().getNodeName());
         NodeList nodeList = doc.getElementsByTagName("node");
         //now XML is loaded as Document in memory, lets convert it to Object List
         NamedNodeMap map = nodeList.item(0).getAttributes();
@@ -297,10 +346,10 @@ public class FileToDB {
 
 
             logger.debug("\n" + "*******COMPARE************");
-            logger.debug("openst -> " + node.getName());
-            logger.debug("googleMap -> " + nameResultFromGooglePlace);
-            logger.debug("foursq -> " + foursquareName);
-            logger.debug("microsoft -> " + microsoftPlaceName);
+            logger.debug("openst -> {}", node.getName());
+            logger.debug("googleMap -> {}", nameResultFromGooglePlace);
+            logger.debug("foursq -> {}", foursquareName);
+            logger.debug("microsoft -> {}", microsoftPlaceName);
 
             //logger.debug("compare -> " + nameResultFromGooglePlace.equals(node.getName()));
             logger.debug("*********FINISH**************" + "\n");
@@ -309,7 +358,7 @@ public class FileToDB {
 
 
             double similarity = jaroWinklerApproach.similarity(node.getName(), nameResultFromGooglePlace);
-
+            logger.info("******* similarity : {}", similarity);
             if (similarity < Const.SIMILARITY_SCORE) {
                 String lngLat = latitudeAndLongitudeMap.get("lat") + "," + latitudeAndLongitudeMap.get("lon");
 

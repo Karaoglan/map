@@ -1,5 +1,6 @@
 package com.example.openmapvalidator.controller;
 
+import com.example.openmapvalidator.helper.Const;
 import com.example.openmapvalidator.service.FileToDB;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -32,13 +33,19 @@ public class MapController {
     }
 
     @GetMapping
-    public ResponseEntity
+    public Map<String, Integer> statisticValues() {
+        //TODO call service
+        Map<String, Integer> statisticValueMap = new HashMap<>();
+        statisticValueMap.put("numOfGooglePlaces", 100);
+        statisticValueMap.put("numOfOpenstreetMapPlaces", 50);
+        return statisticValueMap;
+    }
 
     @PostMapping
     public Map<String, Map<String, String>> uploadFile(@RequestParam MultipartFile file) {
-
+        logger.info("NEW REQUEST");
         try {
-            File localFile = new File(new ClassPathResource("map").getFile(), file.getOriginalFilename());
+            File localFile = new File(new ClassPathResource(Const.MAP_FOLDER_ROOT).getFile(), file.getOriginalFilename());
             FileUtils.writeByteArrayToFile(localFile, file.getBytes());
 
         } catch (IOException e) {

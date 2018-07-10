@@ -12,7 +12,7 @@ export class DemoService {
   constructor(private http: HttpClient) {
   }
 
-  getData(): any {
+  statistic(): any {
     return this.http.get(this.articleUrl)
       .map(this.extractData)
       .catch(this.handleError);
