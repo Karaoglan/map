@@ -1,6 +1,7 @@
 package com.example.openmapvalidator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import info.debatty.java.stringsimilarity.JaroWinkler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -40,5 +41,10 @@ public class OpenMapValidatorApplication {
     @Bean
     public DocumentBuilderFactory documentBuilderFactory() {
        return DocumentBuilderFactory.newInstance();
+    }
+
+    @Bean
+    public JaroWinkler jaroWinkler() {
+        return new JaroWinkler();
     }
 }

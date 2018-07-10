@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javadocmd.simplelatlng.LatLng;
 import com.javadocmd.simplelatlng.LatLngTool;
 import com.javadocmd.simplelatlng.util.LengthUnit;
+import info.debatty.java.stringsimilarity.JaroWinkler;
+import info.debatty.java.stringsimilarity.Levenshtein;
+import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -13,9 +16,15 @@ public class RadiusFromRectangle {
 
     public static void main(String[] args) throws IOException {
 
-        new RadiusFromRectangle().main2();
+        GeoApiContext context = new GeoApiContext.Builder()
+                .apiKey("AIza...")
+                .build();
 
-        String orjUrlWithNextPage = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=48.179519," +
+
+
+        //new RadiusFromRectangle().main2();
+
+        /*String orjUrlWithNextPage = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=48.179519," +
                 "16.326289&radius=50&key=AIzaSyB3juajX9XgIufeRCrOwpY1WRixHMQ9HSk&pagetoken=@PAGE_TOKEN";
 
         String urlWithNextPage = orjUrlWithNextPage.replace("@PAGE_TOKEN", "CqQCGQEAAK1VlmKIxAkZ7iSdxZDFAqXBCYKXzw9igxK2DnNjDATO2uNgUCAhQ8s_RBHyD4z2eOMNok00XsKikj3areYKpDJomLy0RIE_51ZJYaHvuf06SeLStr1RfxbH51HmtmqedePxyzbEpU3GUkYyHL3DJYji-8dwb4P3qiO2ZJVd7QCmMLfTWoV1VUILTxqH05nO2jak6i3_MW2jPWSPR7CFDS6DKTQnm4DoN8qERVqOszPCy8dWOz1_uRkZypRGUFoa-mucb-hrN_fPDbX8O3Bay_PnKOQcz8a4fmaWYSNPm8OYKxr-SbLNeSLdtw1HCBzVM7rcIqFbSt-AxYoL8pqbI6FsNYFMUKm9z5AsXk5mAKyWyXoKDiCRoyyBJ6g3FIDHZxIQAk7BmmHSZqyShU_b0CWsyBoUSo_HdsU8tHBVWnK_yRFfwnQBt7E");
@@ -28,7 +37,7 @@ public class RadiusFromRectangle {
 
         GoogleResult result = new ObjectMapper().readValue(googleResultStr, GoogleResult.class);
         int count = result.getResults().size();
-        System.out.println(count);
+        System.out.println(count);*/
     }
 
     public void main2() throws IOException {

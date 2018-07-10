@@ -11,6 +11,8 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource({"classpath:config.properties", "classpath:application.properties"})
 public class Const {
 
+    public static final double SIMILARITY_SCORE = 0.8;
+
     public static final String OS_NAME = "os.name";
     public static final String OS_WINDOWS_NAME = "windows";
     public static final String BASH_SCRIPTS_ROOT = "../../../bashscript/";

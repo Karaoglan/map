@@ -6,6 +6,7 @@ import com.example.openmapvalidator.model.google.GoogleResult;
 import com.example.openmapvalidator.model.microsoft.MicrosoftResult;
 import com.example.openmapvalidator.mybatis.PlaceDBModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import info.debatty.java.stringsimilarity.JaroWinkler;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -41,6 +42,8 @@ public class FileToDB {
 
     private static final Logger logger = LoggerFactory.getLogger(FileToDB.class);
 
+    private static int SIZE_OF_OSM_PLACES;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -49,6 +52,9 @@ public class FileToDB {
 
     @Autowired
     DocumentBuilderFactory dbFactory;
+
+    @Autowired
+    JaroWinkler jaroWinklerApproach;
 
     private void osmFileToDB(String fileName) {
 
@@ -112,6 +118,7 @@ public class FileToDB {
             SqlSession session = getDBSession();
             List<PlaceDBModel> list = session.selectList(Const.OSM_PSQL_PLACE_SELECT_QUERY_IDENTIFIER);
 
+            SIZE_OF_OSM_PLACES = list.size();
             ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
             long beforeTime = System.currentTimeMillis();
@@ -298,8 +305,12 @@ public class FileToDB {
             //logger.debug("compare -> " + nameResultFromGooglePlace.equals(node.getName()));
             logger.debug("*********FINISH**************" + "\n");
 
-            // TODO Compare functionality extract to method
-            if (true) {//!nameResultFromGooglePlace.equals(node.getName())) {
+
+
+
+            double similarity = jaroWinklerApproach.similarity(node.getName(), nameResultFromGooglePlace);
+
+            if (similarity < Const.SIMILARITY_SCORE) {
                 String lngLat = latitudeAndLongitudeMap.get("lat") + "," + latitudeAndLongitudeMap.get("lon");
 
                 Map<String, String> mapOfNames = new HashMap<>();
@@ -310,8 +321,6 @@ public class FileToDB {
                 nameMap.put(lngLat, mapOfNames);
 
             }
-            //TODO burada istatistik icin bir degeri arttir else kisminda
-
 
         } catch (IOException e) {
             e.printStackTrace();

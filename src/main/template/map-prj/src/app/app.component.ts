@@ -90,6 +90,35 @@ export class AppComponent implements OnInit {
 
     let map;
 
+    map = new google.maps.Map(document.getElementById('map'), {
+      center: {lat: 41.051268, lng: 37.411134},
+      zoom: 15
+    });
+
+    var bony = {lat: 48.179519, lng: 16.326289};
+
+    // Create the places service.
+    var service = new google.maps.places.PlacesService(map);
+    var getNextPage = null;
+    var moreButton = document.getElementById('more');
+    moreButton.onclick = function() {
+      moreButton.disabled = true;
+      if (getNextPage) getNextPage();
+    };
+
+    // Perform a nearby search.
+    service.nearbySearch(
+      {location: bony, radius: 50},
+      function(results, status, pagination) {
+        if (status !== 'OK') return;
+
+        console.info(results);
+        moreButton.disabled = !pagination.hasNextPage;
+        getNextPage = pagination.hasNextPage && function() {
+          pagination.nextPage();
+        };
+      });
+
     if (this.data !== undefined) {
       if (this.data.body !== undefined) {
 
