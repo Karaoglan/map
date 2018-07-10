@@ -1,7 +1,2 @@
-echo This script is about to run another script &
-
-sh ./backendscript.bat &
-echo Backend Run
-
-sh ./frontendscript.bat
-echo Frontend Run
+start /b backendscript.bat
+start /b frontendscript.bat
