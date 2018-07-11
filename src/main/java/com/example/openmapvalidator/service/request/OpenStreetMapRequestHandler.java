@@ -1,6 +1,6 @@
 package com.example.openmapvalidator.service.request;
 
-import com.example.openmapvalidator.helper.Const;
+import com.example.openmapvalidator.helper.ConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +27,14 @@ public class OpenStreetMapRequestHandler {
 
     private final RestTemplate restTemplate;
     private final DocumentBuilderFactory dbFactory;
+    private final ConfigurationService configurationService;
 
     @Autowired
-    public OpenStreetMapRequestHandler(RestTemplate restTemplate, DocumentBuilderFactory factory) {
+    public OpenStreetMapRequestHandler(RestTemplate restTemplate, DocumentBuilderFactory factory,
+                                       ConfigurationService configurationService) {
         this.restTemplate = restTemplate;
         this.dbFactory = factory;
+        this.configurationService = configurationService;
     }
 
     /**
@@ -48,7 +51,8 @@ public class OpenStreetMapRequestHandler {
 
         Map<String, String> longAndLatMap = new HashMap<>();
 
-        String openStreetUriGet = Const.OPENSTREET_URI_GET_LONG_WITH_OSM_ID.replace("@OSM_ID", osmId);
+        String openStreetUriGet = configurationService.getOPENSTREET_URI_GET_LONG_WITH_OSM_ID().replace("@OSM_ID",
+                osmId);
 
         String result = restTemplate.getForObject(openStreetUriGet, String.class);
 

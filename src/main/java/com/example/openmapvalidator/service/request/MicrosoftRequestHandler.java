@@ -1,6 +1,6 @@
 package com.example.openmapvalidator.service.request;
 
-import com.example.openmapvalidator.helper.Const;
+import com.example.openmapvalidator.helper.ConfigurationService;
 import com.example.openmapvalidator.model.microsoft.MicrosoftResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -18,11 +18,13 @@ public class MicrosoftRequestHandler {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+    private final ConfigurationService configurationService;
 
     @Autowired
-    public MicrosoftRequestHandler(RestTemplate restTemplate, ObjectMapper objectMapper) {
+    public MicrosoftRequestHandler(RestTemplate restTemplate, ObjectMapper objectMapper, ConfigurationService configurationService) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
+        this.configurationService = configurationService;
     }
 
     /**
@@ -34,7 +36,7 @@ public class MicrosoftRequestHandler {
      */
     public MicrosoftResult handle(String lat, String log) throws IOException {
 
-        String microsoftUriSearch = Const.MICROSOFTMAP_SEARCH_WITH_LONG.replace("@LAT", lat)
+        String microsoftUriSearch = configurationService.getMICROSOFTMAP_SEARCH_WITH_LONG().replace("@LAT", lat)
                 .replace("@LOG", log);
 
         String microsoftResultStr = restTemplate.getForObject(

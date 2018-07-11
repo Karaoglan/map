@@ -1,6 +1,6 @@
 package com.example.openmapvalidator.service.request;
 
-import com.example.openmapvalidator.helper.Const;
+import com.example.openmapvalidator.helper.ConfigurationService;
 import com.example.openmapvalidator.model.google.GoogleResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -18,11 +18,13 @@ public class GoogleRequestHandler {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+    private final ConfigurationService configurationService;
 
     @Autowired
-    public GoogleRequestHandler(RestTemplate restTemplate, ObjectMapper objectMapper) {
+    public GoogleRequestHandler(RestTemplate restTemplate, ObjectMapper objectMapper, ConfigurationService configurationService) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
+        this.configurationService = configurationService;
     }
 
     /**
@@ -36,7 +38,7 @@ public class GoogleRequestHandler {
      */
     public GoogleResult handle(String lat, String log) throws IOException {
 
-        String googleUriSearch = Const.GOOGLE_SEARCH_NEARBY.replace("@LAT", lat)
+        String googleUriSearch = configurationService.getGOOGLE_SEARCH_NEARBY().replace("@LAT", lat)
                 .replace("@LONG", log);
 
         String googleResultStr = restTemplate.getForObject(
