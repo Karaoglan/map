@@ -19,21 +19,6 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-
-        <googlemap.key>AIzaSyACdtQgb0MC6J8wS-IagDW2YIPAeDakkmM</googlemap.key>
-        <googlemap.recoverykey>AIzaSyB3juajX9XgIufeRCrOwpY1WRixHMQ9HSk</googlemap.recoverykey>
-        <googlemap.thirdkey>AIzaSyDFg2A7P8YnCYzhHt9CO5E4DCHHkjVePFg</googlemap.thirdkey>
-        <foursquare.clientid>DS3UCNSA5DYQDE12CL2ST1OBHSOICBD4XLYI244AKG1ILGR5</foursquare.clientid>
-        <foursquare.clientsecret>TRG0NPZTH5EC1PLTAWI2214TAJEWG5C1XXESOSSUSASNP2M1</foursquare.clientsecret>
-        <microsoftmap.key>AlzLUTrsExYFb8algpyYPpDinKt_T3exD59iO7JsOt8GxTyleygsmqMZeU1pTIpQ</microsoftmap.key>
-        <osm.database.name>map-db</osm.database.name>
-    </properties>
-
     <repositories>
         <repository>
             <id>central</id>
@@ -76,7 +61,7 @@
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-            <version>1.1</version>
+            <version>${jsonsimple.version}</version>
         </dependency>
 
         <dependency>
@@ -89,7 +74,7 @@
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
-            <version>3.4.6</version>
+            <version>${mybatis.version}</version>
         </dependency>
 
         <dependency>
@@ -102,7 +87,7 @@
         <dependency>
             <groupId>com.google.maps</groupId>
             <artifactId>google-maps-services</artifactId>
-            <version>0.2.9</version>
+            <version>${googlemaps.version}</version>
         </dependency>
 
 
@@ -115,18 +100,18 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.6</version>
+            <version>${commonsio.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>25.1-jre</version>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.8.2</version>
+            <version>${gson.version}</version>
         </dependency>
     </dependencies>
 
@@ -154,5 +139,26 @@
         </resources>
     </build>
 
+    <properties>
+        <jsonsimple.version>1.1</jsonsimple.version>
+        <mybatis.version>3.4.6</mybatis.version>
+        <gson.version>2.8.2</gson.version>
+        <guava.version>25.1-jre</guava.version>
+        <commonsio.version>2.6</commonsio.version>
+        <googlemaps.version>0.2.9</googlemaps.version>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <googlemap.key>AIzaSyACdtQgb0MC6J8wS-IagDW2YIPAeDakkmM</googlemap.key>
+        <googlemap.recoverykey>AIzaSyB3juajX9XgIufeRCrOwpY1WRixHMQ9HSk</googlemap.recoverykey>
+        <googlemap.thirdkey>AIzaSyDFg2A7P8YnCYzhHt9CO5E4DCHHkjVePFg</googlemap.thirdkey>
+        <foursquare.clientid>DS3UCNSA5DYQDE12CL2ST1OBHSOICBD4XLYI244AKG1ILGR5</foursquare.clientid>
+        <foursquare.clientsecret>TRG0NPZTH5EC1PLTAWI2214TAJEWG5C1XXESOSSUSASNP2M1</foursquare.clientsecret>
+        <microsoftmap.key>AlzLUTrsExYFb8algpyYPpDinKt_T3exD59iO7JsOt8GxTyleygsmqMZeU1pTIpQ</microsoftmap.key>
+        <osm.database.name>map-db</osm.database.name>
+    </properties>
 
 </project>
