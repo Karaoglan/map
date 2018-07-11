@@ -26,7 +26,6 @@ export class AppComponent implements OnInit {
   numberOfOpenPlaces;
   numberOfTrueOpen;
 
-
   width = 600;
   height = 400;
   type = 'pie3d';
@@ -107,26 +106,25 @@ export class AppComponent implements OnInit {
 
 
     // Create the places service.
-    /*var service = new google.maps.places.PlacesService(map);
+    var service = new google.maps.places.PlacesService(map);
     var getNextPage = null;
-    var moreButton = document.getElementById('more');
-    moreButton.onclick = function() {
-      moreButton.disabled = true;
-      if (getNextPage) getNextPage();
-    };
+    var totalGoogle = 0;
+
+    if (getNextPage) getNextPage();
 
     // Perform a nearby search.
     service.nearbySearch(
       {location: bony, radius: 50},
       function(results, status, pagination) {
-        if (status !== 'OK') return;
+        if (status.toString() !== 'OK') return;
 
         console.info(results);
-        moreButton.disabled = !pagination.hasNextPage;
+        totalGoogle += results.length;
+
         getNextPage = pagination.hasNextPage && function() {
           pagination.nextPage();
         };
-      });*/
+      });
 
     if (this.data !== undefined) {
       if (this.data.body !== undefined) {
