@@ -1,2 +1,2 @@
-start /b backendscript.bat
-start /b frontendscript.bat
+start backendscript.bat
+start frontendscript.bat
