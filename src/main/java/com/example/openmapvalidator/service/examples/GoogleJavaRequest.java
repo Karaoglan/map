@@ -6,9 +6,7 @@ import com.google.maps.GeoApiContext;
 import com.google.maps.NearbySearchRequest;
 import com.google.maps.PendingResult;
 import com.google.maps.PlacesApi;
-import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.PlacesSearchResponse;
-import com.google.maps.model.PlacesSearchResult;
 import com.javadocmd.simplelatlng.LatLng;
 import com.javadocmd.simplelatlng.LatLngTool;
 import com.javadocmd.simplelatlng.util.LengthUnit;
@@ -16,8 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 
-public class RadiusFromRectangle {
-
+public class GoogleJavaRequest {
     public static void main(String[] args) throws IOException {
 
         GeoApiContext context = new GeoApiContext.Builder()
@@ -28,7 +25,27 @@ public class RadiusFromRectangle {
         NearbySearchRequest request = PlacesApi.nearbySearchQuery(context, bony);
 
         request.radius(50);
-        // Synchronous
+
+        request.setCallback(
+                new PendingResult.Callback<PlacesSearchResponse>() {
+                    @Override
+                    public void onResult(PlacesSearchResponse placesSearchResponse) {
+                        if (!placesSearchResponse.nextPageToken.isEmpty()) {
+                            System.out.println("another call");
+                        }
+                        System.out.println(placesSearchResponse.results);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        System.out.println("fail " + throwable.getMessage());
+                    }
+                }
+        );
+
+
+
+        /*// Synchronous
         try {
             request.await();
             // Handle successful request.
@@ -36,7 +53,7 @@ public class RadiusFromRectangle {
             // Handle error
         }
 
-        request.awaitIgnoreError();
+        request.awaitIgnoreError();*/
 
         // Async
         /*request.setCallback(new PendingResult.Callback<Deneme>() {
@@ -52,7 +69,7 @@ public class RadiusFromRectangle {
         });*/
 
 
-        System.out.println(request);
+        //System.out.println(request);
 
         //new RadiusFromRectangle().main2();
 
