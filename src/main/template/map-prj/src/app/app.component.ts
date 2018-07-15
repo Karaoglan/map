@@ -110,7 +110,7 @@ export class AppComponent implements OnInit {
     var getNextPage = null;
     var totalGoogle = 0;
 
-    if (getNextPage) getNextPage();
+    /*if (getNextPage) getNextPage();
 
     // Perform a nearby search.
     service.nearbySearch(
@@ -124,7 +124,7 @@ export class AppComponent implements OnInit {
         getNextPage = pagination.hasNextPage && function() {
           pagination.nextPage();
         };
-      });
+      });*/
 
     if (this.data !== undefined) {
       if (this.data.body !== undefined) {

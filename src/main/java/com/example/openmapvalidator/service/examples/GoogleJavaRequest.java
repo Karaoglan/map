@@ -22,9 +22,9 @@ public class GoogleJavaRequest {
                 .build();
 
         com.google.maps.model.LatLng bony = new com.google.maps.model.LatLng(48.17951,16.326289);
+
         NearbySearchRequest request = PlacesApi.nearbySearchQuery(context, bony);
 
-        request.radius(50);
 
         request.setCallback(
                 new PendingResult.Callback<PlacesSearchResponse>() {
@@ -33,27 +33,22 @@ public class GoogleJavaRequest {
                         if (!placesSearchResponse.nextPageToken.isEmpty()) {
                             System.out.println("another call");
                         }
-                        System.out.println(placesSearchResponse.results);
+                        System.out.println(placesSearchResponse);
                     }
 
                     @Override
                     public void onFailure(Throwable throwable) {
+
                         System.out.println("fail " + throwable.getMessage());
                     }
                 }
         );
 
+        request.radius(50);
 
+        System.out.println();
 
-        /*// Synchronous
-        try {
-            request.await();
-            // Handle successful request.
-        } catch (Exception e) {
-            // Handle error
-        }
-
-        request.awaitIgnoreError();*/
+        //NearbySearchRequest.Response
 
         // Async
         /*request.setCallback(new PendingResult.Callback<Deneme>() {
