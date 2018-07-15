@@ -41,15 +41,15 @@ public class GoogleJavaRequest {
             System.out.println("**************!!!!!!!!!!with next page token : " + urlWithNextPage);
 
             String googleResultStrWithNext = new RestTemplate().getForObject(
-                    urlWithNextPage, String.class);
+                     urlWithNextPage, String.class);
 
-            GoogleResult resultWithNext = new ObjectMapper().readValue(googleResultStrWithNext, GoogleResult.class);
+            result = new ObjectMapper().readValue(googleResultStrWithNext, GoogleResult.class);
             System.out.println("count in while before adding : " + count);
-            System.out.println("size before adding: " + resultWithNext.getResults().size());
-            count += resultWithNext.getResults().size();
+            System.out.println("size before adding: " + result.getResults().size());
+            count += result.getResults().size();
 
 
-            System.out.println("++++++++++++++next token cikis : " + resultWithNext.getNext_page_token());
+            System.out.println("++++++++++++++next token cikis : " + result.getNext_page_token());
         }
 
         System.out.println(count);
