@@ -17,7 +17,45 @@ import java.io.IOException;
 public class GoogleJavaRequest {
     public static void main(String[] args) throws IOException {
 
-        GeoApiContext context = new GeoApiContext.Builder()
+        String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=48.179519," +
+                "16.326289&radius=50&key=AIzaSyB3juajX9XgIufeRCrOwpY1WRixHMQ9HSk";
+
+        String orjUrlWithNextPage = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=48.179519," +
+                "16.326289&radius=50&key=AIzaSyB3juajX9XgIufeRCrOwpY1WRixHMQ9HSk&pagetoken=@PAGE_TOKEN";
+
+
+        String googleResultStr = new RestTemplate().getForObject(
+                url, String.class);
+
+        System.out.println(googleResultStr);
+
+        GoogleResult result = new ObjectMapper().readValue(googleResultStr, GoogleResult.class);
+        int count = result.getResults().size();
+
+        while (result.getNext_page_token() != null) {
+            System.out.println("***************** next token : " + result.getNext_page_token());
+            System.out.println("----------------------");
+
+            String urlWithNextPage = orjUrlWithNextPage.replace("@PAGE_TOKEN", result.getNext_page_token());
+
+            System.out.println("**************!!!!!!!!!!with next page token : " + urlWithNextPage);
+
+            String googleResultStrWithNext = new RestTemplate().getForObject(
+                    urlWithNextPage, String.class);
+
+            GoogleResult resultWithNext = new ObjectMapper().readValue(googleResultStrWithNext, GoogleResult.class);
+            System.out.println("count in while before adding : " + count);
+            System.out.println("size before adding: " + resultWithNext.getResults().size());
+            count += resultWithNext.getResults().size();
+
+
+            System.out.println("++++++++++++++next token cikis : " + resultWithNext.getNext_page_token());
+        }
+
+        System.out.println(count);
+
+
+        /*GeoApiContext context = new GeoApiContext.Builder()
                 .apiKey("AIzaSyB3juajX9XgIufeRCrOwpY1WRixHMQ9HSk")
                 .build();
 
@@ -25,6 +63,18 @@ public class GoogleJavaRequest {
 
         NearbySearchRequest request = PlacesApi.nearbySearchQuery(context, bony);
 
+        // Synchronous
+        try {
+            request.await();
+
+
+            System.out.println("handle succ. request");
+        } catch (Exception e) {
+            // Handle error
+            System.out.println("handle error. request");
+        }
+
+        //request.awaitIgnoreError(); // No checked exception.
 
         request.setCallback(
                 new PendingResult.Callback<PlacesSearchResponse>() {
@@ -48,7 +98,7 @@ public class GoogleJavaRequest {
 
         System.out.println();
 
-        //NearbySearchRequest.Response
+        //NearbySearchRequest.Response*/
 
         // Async
         /*request.setCallback(new PendingResult.Callback<Deneme>() {
@@ -133,44 +183,5 @@ public class GoogleJavaRequest {
         LatLng heightMidPoint = LatLngTool.travel(heightPointUp, bearingHeight, height / 2, LengthUnit.METER);
 
         System.out.println(heightMidPoint.getLatitude() + ", " + widthMidPoint.getLongitude());
-
-
-
-        String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=48.179519," +
-                "16.326289&radius=50&key=AIzaSyB3juajX9XgIufeRCrOwpY1WRixHMQ9HSk";
-
-        String orjUrlWithNextPage = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=48.179519," +
-                "16.326289&radius=50&key=AIzaSyB3juajX9XgIufeRCrOwpY1WRixHMQ9HSk&pagetoken=@PAGE_TOKEN";
-
-
-        String googleResultStr = new RestTemplate().getForObject(
-                url, String.class);
-
-        System.out.println(googleResultStr);
-
-        GoogleResult result = new ObjectMapper().readValue(googleResultStr, GoogleResult.class);
-        int count = result.getResults().size();
-
-        while (result.getNext_page_token() != null) {
-            System.out.println("***************** next token : " + result.getNext_page_token());
-            System.out.println("----------------------");
-
-            String urlWithNextPage = orjUrlWithNextPage.replace("@PAGE_TOKEN", result.getNext_page_token());
-
-            System.out.println("**************!!!!!!!!!!with next page token : " + urlWithNextPage);
-
-            String googleResultStrWithNext = new RestTemplate().getForObject(
-                    urlWithNextPage, String.class);
-
-            GoogleResult resultWithNext = new ObjectMapper().readValue(googleResultStrWithNext, GoogleResult.class);
-            System.out.println("count in while before adding : " + count);
-            System.out.println("size before adding: " + resultWithNext.getResults().size());
-            count += resultWithNext.getResults().size();
-
-
-            System.out.println("++++++++++++++next token cikis : " + resultWithNext.getNext_page_token());
-        }
-
-        System.out.println(count);
     }
 }
