@@ -15,45 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 
 public class GoogleJavaRequest {
-    public static void main(String[] args) throws IOException {
-
-        String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=48.179519," +
-                "16.326289&radius=50&key=AIzaSyB3juajX9XgIufeRCrOwpY1WRixHMQ9HSk";
-
-        String orjUrlWithNextPage = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=48.179519," +
-                "16.326289&radius=50&key=AIzaSyB3juajX9XgIufeRCrOwpY1WRixHMQ9HSk&pagetoken=@PAGE_TOKEN";
-
-
-        String googleResultStr = new RestTemplate().getForObject(
-                url, String.class);
-
-        System.out.println(googleResultStr);
-
-        GoogleResult result = new ObjectMapper().readValue(googleResultStr, GoogleResult.class);
-        int count = result.getResults().size();
-
-        while (result.getNext_page_token() != null) {
-            System.out.println("***************** next token : " + result.getNext_page_token());
-            System.out.println("----------------------");
-
-            String urlWithNextPage = orjUrlWithNextPage.replace("@PAGE_TOKEN", result.getNext_page_token());
-
-            System.out.println("**************!!!!!!!!!!with next page token : " + urlWithNextPage);
-
-            String googleResultStrWithNext = new RestTemplate().getForObject(
-                     urlWithNextPage, String.class);
-
-            result = new ObjectMapper().readValue(googleResultStrWithNext, GoogleResult.class);
-            System.out.println("count in while before adding : " + count);
-            System.out.println("size before adding: " + result.getResults().size());
-            count += result.getResults().size();
-
-
-            System.out.println("++++++++++++++next token cikis : " + result.getNext_page_token());
-        }
-
-        System.out.println(count);
-
+    public static void main(String[] args) throws IOException, InterruptedException {
 
         /*GeoApiContext context = new GeoApiContext.Builder()
                 .apiKey("AIzaSyB3juajX9XgIufeRCrOwpY1WRixHMQ9HSk")

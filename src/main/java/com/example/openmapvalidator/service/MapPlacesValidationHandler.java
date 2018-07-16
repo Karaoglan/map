@@ -6,14 +6,12 @@ import com.example.openmapvalidator.model.foursquare.FoursquareResult;
 import com.example.openmapvalidator.model.google.GoogleResult;
 import com.example.openmapvalidator.model.microsoft.MicrosoftResult;
 import com.example.openmapvalidator.service.convert.OsmToDBHandler;
+import com.example.openmapvalidator.service.database.DatabaseSession;
 import com.example.openmapvalidator.service.request.FoursquareRequestHandler;
 import com.example.openmapvalidator.service.request.GoogleRequestHandler;
 import com.example.openmapvalidator.service.request.MicrosoftRequestHandler;
 import com.example.openmapvalidator.service.request.OpenStreetMapRequestHandler;
-import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,7 @@ import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,19 +36,19 @@ public class MapPlacesValidationHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MapPlacesValidationHandler.class);
 
-    private static int SIZE_OF_OSM_PLACES;
-
     private final OpenStreetMapRequestHandler osmRequestHandler;
     private final MicrosoftRequestHandler microsoftRequestHandler;
     private final OsmToDBHandler osmToDBHandler;
     private final FoursquareRequestHandler foursquareRequestHandler;
     private final GoogleRequestHandler googleRequestHandler;
     private final SimilarityCheckHandler similarityCheckHandler;
+    private final DatabaseSession databaseSession;
 
     @Autowired
     public MapPlacesValidationHandler(MicrosoftRequestHandler microsoftRequestHandler, OpenStreetMapRequestHandler osmRequestHandler,
                                       SimilarityCheckHandler similarityCheckHandler, OsmToDBHandler osmToDBHandler,
-                                      FoursquareRequestHandler foursquareRequestHandler, GoogleRequestHandler googleRequestHandler) {
+                                      FoursquareRequestHandler foursquareRequestHandler, GoogleRequestHandler
+                                                  googleRequestHandler, DatabaseSession databaseSession) {
 
         this.osmRequestHandler = osmRequestHandler;
         this.microsoftRequestHandler = microsoftRequestHandler;
@@ -58,17 +56,17 @@ public class MapPlacesValidationHandler {
         this.foursquareRequestHandler = foursquareRequestHandler;
         this.googleRequestHandler = googleRequestHandler;
         this.similarityCheckHandler = similarityCheckHandler;
+        this.databaseSession = databaseSession;
     }
 
-    private SqlSession getDBSession() throws IOException {
-        String resource = "mybatis/config.xml";
-        InputStream inputStream = Resources.getResourceAsStream(resource);
-        SqlSessionFactory sqlSessionFactory = new
-                SqlSessionFactoryBuilder().build(inputStream);
 
-        return sqlSessionFactory.openSession();
-    }
-
+    /**
+     * this method gets the file specified with given name and pass it to the osm db handler
+     * to put the geographic data to the database then queries places from db and pass it to the
+     * compare function.
+     * @param fileName osm file uploaded into project
+     * @return all the places
+     */
     public Map<String, Map<String, String>> saveAndCallForPlaceCoordinates(String fileName) {
 
         Map<String, Map<String, String>> nameMap = new ConcurrentHashMap<>();
@@ -79,10 +77,9 @@ public class MapPlacesValidationHandler {
 
             osmToDBHandler.handle(fileName);
 
-            SqlSession session = getDBSession();
+            SqlSession session = databaseSession.getDBSession();
             List<PlaceDBModel> list = session.selectList(Const.OSM_PSQL_PLACE_SELECT_QUERY_IDENTIFIER);
 
-            SIZE_OF_OSM_PLACES = list.size();
             ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
             long beforeTime = System.currentTimeMillis();
@@ -104,8 +101,8 @@ public class MapPlacesValidationHandler {
 
             long endTime = System.currentTimeMillis();
 
-            LOGGER.debug("---******* run time for putting values inside map after compare -> {}", (int) ((endTime -
-                    beforeTime) / 1000) % 60);
+            LOGGER.debug("---******* run time for putting values inside map after compare -> {} sec.",
+                    (double) ((endTime - beforeTime) / 1000) % 60);
             session.close();
         }
         catch (Exception e) {

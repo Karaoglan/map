@@ -2,6 +2,8 @@ package com.example.openmapvalidator.controller;
 
 import com.example.openmapvalidator.helper.Const;
 import com.example.openmapvalidator.service.MapPlacesValidationHandler;
+import com.example.openmapvalidator.service.request.OpenStreetMapRequestHandler;
+import com.example.openmapvalidator.service.statistic.GoogleNearbyRequestHandler;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.FileUtils;
@@ -25,26 +27,44 @@ public class MapController {
     private static final Logger logger = LoggerFactory.getLogger(MapController.class);
 
     private final MapPlacesValidationHandler mapPlacesValidationHandlerService;
+    private final GoogleNearbyRequestHandler googleNearbyRequestHandler;
+    private final OpenStreetMapRequestHandler openStreetMapRequestHandler;
+    private final Gson gson;
 
     @Autowired
-    public MapController(MapPlacesValidationHandler mapPlacesValidationHandlerService) {
+    public MapController(MapPlacesValidationHandler mapPlacesValidationHandlerService,
+                         GoogleNearbyRequestHandler googleNearbyRequestHandler,
+                         OpenStreetMapRequestHandler openStreetMapRequestHandler, Gson gson) {
         this.mapPlacesValidationHandlerService = mapPlacesValidationHandlerService;
+        this.googleNearbyRequestHandler = googleNearbyRequestHandler;
+        this.openStreetMapRequestHandler = openStreetMapRequestHandler;
+        this.gson = gson;
     }
 
     @GetMapping
     public Map<String, Integer> statisticValues() {
-        //TODO call service
+
+        //googleNearbyRequestHandler.handleNearbyWithRadius()
+
+
         Map<String, Integer> statisticValueMap = new HashMap<>();
         statisticValueMap.put("numOfGooglePlaces", 100);
         statisticValueMap.put("numOfOpenstreetMapPlaces", 50);
+
+
+
+
         return statisticValueMap;
     }
+
+    //TODO brk add, strategy pattern uygulanabilir mi similarity algo icin?
 
     @PostMapping
     public Map<String, Map<String, String>> uploadFile(@RequestParam MultipartFile file) {
         logger.info("NEW REQUEST");
+        String fileName = file.getOriginalFilename().trim().replaceAll("\\s","");
         try {
-            File localFile = new File(new ClassPathResource(Const.MAP_FOLDER_ROOT).getFile(), file.getOriginalFilename());
+            File localFile = new File(new ClassPathResource(Const.MAP_FOLDER_ROOT).getFile(), fileName);
             FileUtils.writeByteArrayToFile(localFile, file.getBytes());
 
         } catch (IOException e) {
@@ -52,11 +72,10 @@ public class MapController {
         }
 
         Map<String, Map<String, String>> map =
-                mapPlacesValidationHandlerService.saveAndCallForPlaceCoordinates(file.getOriginalFilename());
-
+                mapPlacesValidationHandlerService.saveAndCallForPlaceCoordinates(fileName);
 
         logger.debug("****Returned Map Json");
-        logger.debug(new Gson().toJson(map));
+        logger.debug(gson.toJson(map));
 
         return map;
 
@@ -78,7 +97,6 @@ public class MapController {
 
         // convert JSON string to Map
         Type type = new TypeToken<Map<String, Map<String, String>>>(){}.getType();
-        Gson gson = new Gson();
         return gson.fromJson(json, type);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.openmapvalidator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import info.debatty.java.stringsimilarity.JaroWinkler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -47,4 +48,10 @@ public class OpenMapValidatorApplication {
     public JaroWinkler jaroWinkler() {
         return new JaroWinkler();
     }
+
+    @Bean
+    public Gson gson() {
+        return new Gson();
+    }
+
 }

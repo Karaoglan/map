@@ -4,4 +4,8 @@
     <select id="selectPlaces" resultType="com.example.openmapvalidator.model.PlaceDBModel">
                 SELECT * FROM planet_osm_point WHERE public_transport IS NULL AND name IS NOT NULL
     </select>
+
+    <select id="countPlaces" resultType="java.lang.Integer">
+                SELECT count(*) FROM planet_osm_point WHERE public_transport IS NULL AND name IS NOT NULL
+    </select>
 </mapper>
