@@ -1,9 +1,12 @@
 package com.example.openmapvalidator.controller;
 
 import com.example.openmapvalidator.helper.Const;
+import com.example.openmapvalidator.model.open.GeographicRectangle;
 import com.example.openmapvalidator.service.MapPlacesValidationHandler;
 import com.example.openmapvalidator.service.request.OpenStreetMapRequestHandler;
 import com.example.openmapvalidator.service.statistic.GoogleNearbyRequestHandler;
+import com.example.openmapvalidator.service.statistic.OpenmapRequestHandler;
+import com.example.openmapvalidator.service.statistic.RadiusHandler;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.FileUtils;
@@ -28,30 +31,46 @@ public class MapController {
 
     private final MapPlacesValidationHandler mapPlacesValidationHandlerService;
     private final GoogleNearbyRequestHandler googleNearbyRequestHandler;
-    private final OpenStreetMapRequestHandler openStreetMapRequestHandler;
+    private final RadiusHandler radiusHandler;
+    private final OpenmapRequestHandler openStreetMapRequestHandler;
     private final Gson gson;
 
     @Autowired
     public MapController(MapPlacesValidationHandler mapPlacesValidationHandlerService,
                          GoogleNearbyRequestHandler googleNearbyRequestHandler,
-                         OpenStreetMapRequestHandler openStreetMapRequestHandler, Gson gson) {
+                         OpenmapRequestHandler openStreetMapRequestHandler, RadiusHandler radiusHandler,
+                         Gson gson) {
         this.mapPlacesValidationHandlerService = mapPlacesValidationHandlerService;
         this.googleNearbyRequestHandler = googleNearbyRequestHandler;
         this.openStreetMapRequestHandler = openStreetMapRequestHandler;
+        this.radiusHandler = radiusHandler;
         this.gson = gson;
     }
 
     @GetMapping
-    public Map<String, Integer> statisticValues() {
+    public Map<String, Integer> statisticValues(@RequestParam GeographicRectangle rectangle) {
 
-        //googleNearbyRequestHandler.handleNearbyWithRadius()
+        Map<String, Double> geographicValueMap = radiusHandler.handle(rectangle);
 
+        String lat = geographicValueMap.get(Const.LATITUDE).toString();
+        String lon = geographicValueMap.get(Const.LONGITUDE).toString();
+        double radius = geographicValueMap.get(Const.RADIUS);
+
+        int numOfGooglePlaces = 0;
+        int numOfOpenstreetMapPlaces = 0;
+
+        try {
+            numOfGooglePlaces = googleNearbyRequestHandler.handleNearbyWithRadius(lat, lon, radius);
+            numOfOpenstreetMapPlaces = openStreetMapRequestHandler.countOpenmapPlaces();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         Map<String, Integer> statisticValueMap = new HashMap<>();
-        statisticValueMap.put("numOfGooglePlaces", 100);
-        statisticValueMap.put("numOfOpenstreetMapPlaces", 50);
-
-
+        statisticValueMap.put(Const.NUMBER_OF_GOOGLE_PLACES, numOfGooglePlaces);
+        statisticValueMap.put(Const.NUMBER_OF_OPENMAP_PLACES, numOfOpenstreetMapPlaces);
 
 
         return statisticValueMap;

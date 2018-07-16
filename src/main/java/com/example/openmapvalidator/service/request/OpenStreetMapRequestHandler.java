@@ -1,6 +1,7 @@
 package com.example.openmapvalidator.service.request;
 
 import com.example.openmapvalidator.helper.ConfigurationService;
+import com.example.openmapvalidator.helper.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +52,8 @@ public class OpenStreetMapRequestHandler {
 
         Map<String, String> longAndLatMap = new HashMap<>();
 
-        String openStreetUriGet = configurationService.getOPENSTREET_URI_GET_LONG_WITH_OSM_ID().replace("@OSM_ID",
-                osmId);
+        String openStreetUriGet = configurationService.getOPENSTREET_URI_GET_LONG_WITH_OSM_ID()
+                .replace(Const.OSMID_REPLACEMENT_SHORTCUT, osmId);
 
         String result = restTemplate.getForObject(openStreetUriGet, String.class);
 
@@ -73,8 +74,8 @@ public class OpenStreetMapRequestHandler {
         String LAT = map.getNamedItem("lat").getNodeValue();
         String LON = map.getNamedItem("lon").getNodeValue();
 
-        longAndLatMap.put("lat", LAT);
-        longAndLatMap.put("lon", LON);
+        longAndLatMap.put(Const.LATITUDE, LAT);
+        longAndLatMap.put(Const.LONGITUDE, LON);
 
         return longAndLatMap;
     }

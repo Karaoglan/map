@@ -37,10 +37,10 @@ public class SimilarityCheckHandler {
                        String microsoftPlaceName) {
 
         LOGGER.debug("\n" + "*******COMPARE************");
-        LOGGER.debug("openst -> {}", node.getName());
-        LOGGER.debug("googleMap -> {}", nameResultFromGooglePlace);
-        LOGGER.debug("foursq -> {}", foursquareName);
-        LOGGER.debug("microsoft -> {}", microsoftPlaceName);
+        LOGGER.debug("{} -> {}", Const.OPENSTREET, node.getName());
+        LOGGER.debug("{} -> {}", Const.GOOGLE, nameResultFromGooglePlace);
+        LOGGER.debug("{} -> {}", Const.FOURSQUARE, foursquareName);
+        LOGGER.debug("{} -> {}", Const.MICROSOFT, microsoftPlaceName);
 
         //LOGGER.debug("compare -> " + nameResultFromGooglePlace.equals(node.getName()));
         LOGGER.debug("*********FINISH**************" + "\n");

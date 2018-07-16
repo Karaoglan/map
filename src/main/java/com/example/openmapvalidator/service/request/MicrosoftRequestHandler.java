@@ -1,6 +1,7 @@
 package com.example.openmapvalidator.service.request;
 
 import com.example.openmapvalidator.helper.ConfigurationService;
+import com.example.openmapvalidator.helper.Const;
 import com.example.openmapvalidator.model.microsoft.MicrosoftResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -32,12 +33,13 @@ public class MicrosoftRequestHandler {
      *
      * its just applied to USA but in any short time other countries will added
      *
-     * @param lat latitude and @param log longitude
+     * @param lat latitude and @param lon longitude
      */
-    public MicrosoftResult handle(String lat, String log) throws IOException {
+    public MicrosoftResult handle(String lat, String lon) throws IOException {
 
-        String microsoftUriSearch = configurationService.getMICROSOFTMAP_SEARCH_WITH_LONG().replace("@LAT", lat)
-                .replace("@LOG", log);
+        String microsoftUriSearch = configurationService.getMICROSOFTMAP_SEARCH_WITH_LONG()
+                .replace(Const.LATITUDE_REPLACEMENT_SHORTCUT, lat)
+                .replace(Const.LONGITUDE_REPLACEMENT_SHORTCUT, lon);
 
         String microsoftResultStr = restTemplate.getForObject(
                 microsoftUriSearch, String.class);

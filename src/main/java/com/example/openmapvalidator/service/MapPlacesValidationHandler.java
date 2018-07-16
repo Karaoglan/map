@@ -130,13 +130,13 @@ public class MapPlacesValidationHandler {
             Map<String, String> latitudeAndLongitudeMap = osmRequestHandler.handle(node.getOsm_id());
             LOGGER.debug("{}, {}", latitudeAndLongitudeMap.get("lat"), latitudeAndLongitudeMap.get("lon"));
 
-            String lat = latitudeAndLongitudeMap.get("lat");
-            String lon = latitudeAndLongitudeMap.get("lon");
+            String lat = latitudeAndLongitudeMap.get(Const.LATITUDE);
+            String lon = latitudeAndLongitudeMap.get(Const.LONGITUDE);
 
             // GOOGLE
             GoogleResult googleResult = googleRequestHandler.handle(lat, lon);
 
-            String nameResultFromGooglePlace = "NOT PRESENT";
+            String nameResultFromGooglePlace = Const.NOT_PRESENT;
 
             if (!googleResult.getResults().isEmpty()) {
                 nameResultFromGooglePlace = googleResult.getResults().get(0).getName();
@@ -145,7 +145,7 @@ public class MapPlacesValidationHandler {
             // FOURSQUARE
             FoursquareResult foursquareResult = foursquareRequestHandler.handle(lat, lon);
 
-            String foursquareName = "NOT PRESENT";
+            String foursquareName = Const.NOT_PRESENT;
             if (!foursquareResult.getResponse().getVenues().isEmpty()) {
                 foursquareName = foursquareResult.getResponse().getVenues().get(0).getName();
             }
@@ -153,7 +153,7 @@ public class MapPlacesValidationHandler {
 
             // MICROSOFT
             MicrosoftResult microsoftResult = microsoftRequestHandler.handle(lat, lon);
-            String microsoftPlaceName = "NOT PRESENT";
+            String microsoftPlaceName = Const.NOT_PRESENT;
             if (!microsoftResult.getResourceSets().get(0).getResources().get(0).getBusinessesAtLocation().isEmpty()) {
                 microsoftPlaceName = microsoftResult.getResourceSets().get(0).
                         getResources().get(0).
@@ -165,13 +165,13 @@ public class MapPlacesValidationHandler {
                     microsoftPlaceName);
 
             if (isNotSimilar) {
-                String lngLat = latitudeAndLongitudeMap.get("lat") + "," + latitudeAndLongitudeMap.get("lon");
+                String lngLat = latitudeAndLongitudeMap.get(Const.LATITUDE) + "," + latitudeAndLongitudeMap.get(Const.LONGITUDE);
 
                 Map<String, String> mapOfNames = new HashMap<>();
-                mapOfNames.put("openstreet", node.getName());
-                mapOfNames.put("google", nameResultFromGooglePlace);
-                mapOfNames.put("foursquare", foursquareName);
-                mapOfNames.put("microsoft", microsoftPlaceName);
+                mapOfNames.put(Const.OPENSTREET, node.getName());
+                mapOfNames.put(Const.GOOGLE, nameResultFromGooglePlace);
+                mapOfNames.put(Const.FOURSQUARE, foursquareName);
+                mapOfNames.put(Const.MICROSOFT, microsoftPlaceName);
                 nameMap.put(lngLat, mapOfNames);
 
             }

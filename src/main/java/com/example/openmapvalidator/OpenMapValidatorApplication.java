@@ -1,5 +1,6 @@
 package com.example.openmapvalidator;
 
+import com.example.openmapvalidator.helper.Const;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import info.debatty.java.stringsimilarity.JaroWinkler;
@@ -25,7 +26,7 @@ public class OpenMapValidatorApplication {
         return new WebMvcConfigurerAdapter() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/maps")
+                registry.addMapping(Const.API_ROOT_FOLDER)
                         .allowCredentials(false);
             }
         };

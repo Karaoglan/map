@@ -38,4 +38,7 @@ public class ConfigurationService {
 
     @Value("${similarity.score}")
     private String SIMILARITY_SCORE;
+
+    @Value("${postgresql.mybatis.config.path}")
+    private String MYBATIS_CONFIG_PATH;
 }

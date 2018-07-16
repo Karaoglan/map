@@ -103,14 +103,13 @@ export class AppComponent implements OnInit {
       this.numberOfOpenPlaces = this.statisticData["numOfOpenstreetMapPlaces"];
     }
 
-
-
+    /*
     // Create the places service.
     var service = new google.maps.places.PlacesService(map);
     var getNextPage = null;
     var totalGoogle = 0;
 
-    /*if (getNextPage) getNextPage();
+    if (getNextPage) getNextPage();
 
     // Perform a nearby search.
     service.nearbySearch(

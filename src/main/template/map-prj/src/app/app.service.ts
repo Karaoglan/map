@@ -13,6 +13,13 @@ export class DemoService {
   }
 
   statistic(): any {
+    rectangle: {
+      minlat: Number = 42.3555900;
+      minlon: Number = -71.0611300;
+      maxlat: Number = 42.3568200;
+      maxlon: Number = -71.0583800;
+    }
+
     return this.http.get(this.articleUrl)
       .map(this.extractData)
       .catch(this.handleError);

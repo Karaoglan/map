@@ -1,6 +1,7 @@
 package com.example.openmapvalidator.service.request;
 
 import com.example.openmapvalidator.helper.ConfigurationService;
+import com.example.openmapvalidator.helper.Const;
 import com.example.openmapvalidator.model.foursquare.FoursquareResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -36,8 +37,9 @@ public class FoursquareRequestHandler {
      */
     public FoursquareResult handle(String lat, String lon) throws IOException {
 
-        String foursquareUriSearch = configurationService.getFOURSQUARE_URI_SEARCH_WITH_LONG().replace("@LAT", lat)
-                .replace("@LON", lon);
+        String foursquareUriSearch = configurationService.getFOURSQUARE_URI_SEARCH_WITH_LONG()
+                .replace(Const.LATITUDE_REPLACEMENT_SHORTCUT, lat)
+                .replace(Const.LONGITUDE_REPLACEMENT_SHORTCUT, lon);
 
         String foursquareResultStr = restTemplate.getForObject(
                 foursquareUriSearch, String.class);

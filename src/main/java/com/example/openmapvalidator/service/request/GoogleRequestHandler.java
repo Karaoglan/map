@@ -1,6 +1,7 @@
 package com.example.openmapvalidator.service.request;
 
 import com.example.openmapvalidator.helper.ConfigurationService;
+import com.example.openmapvalidator.helper.Const;
 import com.example.openmapvalidator.model.google.GoogleResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -32,14 +33,16 @@ public class GoogleRequestHandler {
      * get google places result with latitude and longitude category of a place is mapped from openstreet
      *
      * @param lat latitude
-     * @param log longitude
+     * @param lon longitude
      * @return
      * @throws IOException
      */
-    public GoogleResult handle(String lat, String log) throws IOException {
+    public GoogleResult handle(String lat, String lon) throws IOException {
 
-        String googleUriSearch = configurationService.getGOOGLE_SEARCH_NEARBY().replace("@LAT", lat)
-                .replace("@LONG", log);
+        String googleUriSearch = configurationService.getGOOGLE_SEARCH_NEARBY()
+                .replace(Const.LATITUDE_REPLACEMENT_SHORTCUT, lat)
+                .replace(Const.LONGITUDE_REPLACEMENT_SHORTCUT, lon);
+                //.replace("@LONG", log);
 
         String googleResultStr = restTemplate.getForObject(
                 googleUriSearch, String.class);

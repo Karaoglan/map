@@ -23,4 +23,24 @@ public class Const {
     public static final String OSM_COMMAND_USERNAME_OPTION = "-U";
     public static final String OSM_DEFAULT_STYLE_OPTION = "-S";
 
+    public static final String LATITUDE = "latitude";
+    public static final String LONGITUDE = "longitude";
+    public static final String RADIUS = "radius";
+
+    public static final String NOT_PRESENT = "NOT PRESENT";
+
+    public static final String LATITUDE_REPLACEMENT_SHORTCUT = "@LAT";
+    public static final String LONGITUDE_REPLACEMENT_SHORTCUT = "@LON";
+    public static final String OSMID_REPLACEMENT_SHORTCUT = "@OSM_ID";
+
+    public static final String NUMBER_OF_GOOGLE_PLACES = "numOfGooglePlaces";
+    public static final String NUMBER_OF_OPENMAP_PLACES = "numOfOpenstreetMapPlaces";
+
+    public static final String OPENSTREET = "openstreet";
+    public static final String GOOGLE = "google";
+    public static final String FOURSQUARE = "foursquare";
+    public static final String MICROSOFT = "microsoft";
+
+    public static final String API_ROOT_FOLDER = "/maps";
+
 }
