@@ -9,7 +9,7 @@
 
     </div>
     <div class="col-xs-6 float-right">
-      <button class="btn btn-lg btn-outline-primary" (click)="open(content)">Launch statistic modal</button>
+      <button class="btn btn-lg btn-outline-primary" (click)="open(content)" *ngIf="fileSelected">Launch statistic modal</button>
     </div>
 
 

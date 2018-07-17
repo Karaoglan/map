@@ -16,7 +16,7 @@ export class AppComponent implements OnInit {
   statisticData: any = {};
 
   fileToUpload: File = null;
-  isFileUploaded: boolean = false;
+  fileSelected: boolean = false;
 //[hidden]="isFileUploaded"
 
   closeResult: string;
@@ -64,16 +64,16 @@ export class AppComponent implements OnInit {
   };
 
   constructor(private demoService: DemoService,
-              private modalService: NgbModal) {
+              private modalService: NgbModal) { }
 
-    let rectangle: {
-      minlat: 42.3555900,
-      minlon: -71.0611300,
-      maxlat: 42.3568200,
-      maxlon: -71.0583800
-    };
-
-    this.handleStatistic(rectangle);
+  private areNullOrUndefined(arr) {
+    for (var i = 0; i < arr.length; i++) {
+      var itm = arr[i];
+      if (itm === null || itm === undefined) {
+        return true;
+      }
+    }
+    return false;
   }
 
   open(content) {
@@ -96,6 +96,11 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
 
+    if (this.fileSelected) {
+      console.info(this.fileToUpload.name);
+      this.handleStatistic(this.fileToUpload.name);
+    }
+
     let map;
 
     map = new google.maps.Map(document.getElementById('map'), {
@@ -103,47 +108,21 @@ export class AppComponent implements OnInit {
       zoom: 15
     });
 
-    var bony = {lat: 48.179519, lng: 16.326289};
-
-
     if (this.statisticData.hasOwnProperty('numOfGooglePlaces')) {
       this.numberOfGooglePlaces = this.statisticData["numOfGooglePlaces"];
       this.numberOfOpenPlaces = this.statisticData["numOfOpenstreetMapPlaces"];
     }
 
-    /*
-    // Create the places service.
-    var service = new google.maps.places.PlacesService(map);
-    var getNextPage = null;
-    var totalGoogle = 0;
-
-    if (getNextPage) getNextPage();
-
-    // Perform a nearby search.
-    service.nearbySearch(
-      {location: bony, radius: 50},
-      function(results, status, pagination) {
-        if (status.toString() !== 'OK') return;
-
-        console.info(results);
-        totalGoogle += results.length;
-
-        getNextPage = pagination.hasNextPage && function() {
-          pagination.nextPage();
-        };
-      });*/
-
     if (this.data !== undefined) {
       if (this.data.body !== undefined) {
 
-        this.data = JSON.parse(this.data.body)
+        this.data = JSON.parse(this.data.body);
 
         let keys = Object.keys(this.data);
 
         let splitCoordinateFocus = keys[0].split(',');
 
         const FOCUS = {lat: Number(splitCoordinateFocus[0]), lng: Number(splitCoordinateFocus[1])};
-        debugger
 
         map = new google.maps.Map(document.getElementById('map'), {
           center: FOCUS,
@@ -207,8 +186,8 @@ export class AppComponent implements OnInit {
 
   }
 
-  handleStatistic(rectangle) {
-    this.demoService.statistic(rectangle).subscribe(
+  handleStatistic(fileName) {
+    this.demoService.statistic(fileName).subscribe(
       // the first argument is a function which runs on success
       data => { console.log('check THIS!!' + data); this.statisticData = data
       },
@@ -224,11 +203,13 @@ export class AppComponent implements OnInit {
     console.info("in post and get");
 
     this.fileToUpload = files.item(0);
-    this.isFileUploaded = true;
 
     this.demoService.upload(this.fileToUpload).subscribe(
       // the first argument is a function which runs on success
-      data => { console.log('check THIS!!' + data); this.data = data
+      data => {
+        console.log('check THIS!!' + data);
+        this.fileSelected = true;
+        this.data = data;
       },
       // the second argument is a function which runs on error
       err => console.error(err),

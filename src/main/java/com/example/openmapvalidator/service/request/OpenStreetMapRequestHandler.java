@@ -2,6 +2,7 @@ package com.example.openmapvalidator.service.request;
 
 import com.example.openmapvalidator.helper.ConfigurationService;
 import com.example.openmapvalidator.helper.Const;
+import com.example.openmapvalidator.service.file.XMLFileParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +28,15 @@ public class OpenStreetMapRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenStreetMapRequestHandler.class);
 
     private final RestTemplate restTemplate;
-    private final DocumentBuilderFactory dbFactory;
     private final ConfigurationService configurationService;
+    private final XMLFileParser xmlFileParser;
 
     @Autowired
-    public OpenStreetMapRequestHandler(RestTemplate restTemplate, DocumentBuilderFactory factory,
-                                       ConfigurationService configurationService) {
+    public OpenStreetMapRequestHandler(RestTemplate restTemplate, ConfigurationService configurationService,
+                                       XMLFileParser xmlFileParser) {
         this.restTemplate = restTemplate;
-        this.dbFactory = factory;
         this.configurationService = configurationService;
+        this.xmlFileParser = xmlFileParser;
     }
 
     /**
@@ -62,11 +63,7 @@ public class OpenStreetMapRequestHandler {
         writer.write(result);
         writer.close();
 
-        DocumentBuilder dBuilder;
-
-        dBuilder = dbFactory.newDocumentBuilder();
-        Document doc = dBuilder.parse(tmpFile);
-        doc.getDocumentElement().normalize();
+        Document doc = xmlFileParser.getDocumentForXmlParse(tmpFile);
         LOGGER.debug("Root element : {}", doc.getDocumentElement().getNodeName());
         NodeList nodeList = doc.getElementsByTagName("node");
         //now XML is loaded as Document in memory, lets convert it to Object List

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpRequest, HttpEvent, HttpResponse, HttpParams} from '@angular/common/http';
+import {HttpClient, HttpRequest, HttpEvent, HttpResponse} from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
@@ -12,18 +12,10 @@ export class DemoService {
   constructor(private http: HttpClient) {
   }
 
-  statistic(rectangle): any {
-    console.info(rectangle);
+  statistic(fileName): any {
+    console.info(fileName);
 
-    //let params = new HttpParams().set("rectangle", rectangle);
-
-    let params: URLSearchParams = new URLSearchParams();
-    params.set('minLatitude', rectangle.minlat);
-    params.set('minLongitude', rectangle.minlon);
-    params.set('maxLatitude', rectangle.maxlat);
-    params.set('maxLongitude', rectangle.maxlon);
-
-    return this.http.get(this.articleUrl, {search: params})
+    return this.http.get(this.articleUrl + '?fileName='+ fileName)
       .map(this.extractData)
       .catch(this.handleError);
   }

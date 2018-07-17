@@ -3,6 +3,8 @@ package com.example.openmapvalidator.controller;
 import com.example.openmapvalidator.helper.Const;
 import com.example.openmapvalidator.model.open.GeographicRectangle;
 import com.example.openmapvalidator.service.MapPlacesValidationHandler;
+import com.example.openmapvalidator.service.file.FileHandler;
+import com.example.openmapvalidator.service.file.XMLFileParser;
 import com.example.openmapvalidator.service.request.OpenStreetMapRequestHandler;
 import com.example.openmapvalidator.service.statistic.GoogleNearbyRequestHandler;
 import com.example.openmapvalidator.service.statistic.OpenmapRequestHandler;
@@ -16,40 +18,68 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author senan.ahmedov
+ */
 @RestController
 @RequestMapping("/maps")
 public class MapController {
 
     private static final Logger logger = LoggerFactory.getLogger(MapController.class);
 
+    private final FileHandler fileHandler;
     private final MapPlacesValidationHandler mapPlacesValidationHandlerService;
     private final GoogleNearbyRequestHandler googleNearbyRequestHandler;
     private final RadiusHandler radiusHandler;
     private final OpenmapRequestHandler openStreetMapRequestHandler;
+    private final XMLFileParser xmlFileParser;
     private final Gson gson;
 
     @Autowired
     public MapController(MapPlacesValidationHandler mapPlacesValidationHandlerService,
                          GoogleNearbyRequestHandler googleNearbyRequestHandler,
                          OpenmapRequestHandler openStreetMapRequestHandler, RadiusHandler radiusHandler,
-                         Gson gson) {
+                         XMLFileParser xmlFileParser,
+                         FileHandler fileHandler, Gson gson) {
         this.mapPlacesValidationHandlerService = mapPlacesValidationHandlerService;
         this.googleNearbyRequestHandler = googleNearbyRequestHandler;
         this.openStreetMapRequestHandler = openStreetMapRequestHandler;
         this.radiusHandler = radiusHandler;
+        this.fileHandler = fileHandler;
+        this.xmlFileParser = xmlFileParser;
         this.gson = gson;
     }
 
     @GetMapping
-    public Map<String, Integer> statisticValues(@RequestParam GeographicRectangle rectangle) {
+    public Map<String, Integer> statisticValues(@RequestParam String fileName) {
 
+        fileName = fileName.trim().replaceAll("\\s","");
+
+        try {
+            xmlFileParser.parseRectangleCoordinates(fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        GeographicRectangle rectangle = new GeographicRectangle();
+      /*  rectangle.setMaxLatitude(maxLatitude);
+        rectangle.setMaxLongitude(maxLongitude);
+        rectangle.setMinLatitude(minLatitude);
+        rectangle.setMinLongitude(minLongitude);
+*/
         Map<String, Double> geographicValueMap = radiusHandler.handle(rectangle);
 
         String lat = geographicValueMap.get(Const.LATITUDE).toString();
@@ -81,14 +111,8 @@ public class MapController {
     @PostMapping
     public Map<String, Map<String, String>> uploadFile(@RequestParam MultipartFile file) {
         logger.info("NEW REQUEST");
-        String fileName = file.getOriginalFilename().trim().replaceAll("\\s","");
-        try {
-            File localFile = new File(new ClassPathResource(Const.MAP_FOLDER_ROOT).getFile(), fileName);
-            FileUtils.writeByteArrayToFile(localFile, file.getBytes());
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String fileName = fileHandler.saveFile(file);
 
         Map<String, Map<String, String>> map =
                 mapPlacesValidationHandlerService.saveAndCallForPlaceCoordinates(fileName);
