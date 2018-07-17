@@ -65,7 +65,15 @@ export class AppComponent implements OnInit {
 
   constructor(private demoService: DemoService,
               private modalService: NgbModal) {
-    this.handleStatistic();
+
+    let rectangle: {
+      minlat: 42.3555900,
+      minlon: -71.0611300,
+      maxlat: 42.3568200,
+      maxlon: -71.0583800
+    };
+
+    this.handleStatistic(rectangle);
   }
 
   open(content) {
@@ -199,8 +207,8 @@ export class AppComponent implements OnInit {
 
   }
 
-  handleStatistic() {
-    this.demoService.statistic().subscribe(
+  handleStatistic(rectangle) {
+    this.demoService.statistic(rectangle).subscribe(
       // the first argument is a function which runs on success
       data => { console.log('check THIS!!' + data); this.statisticData = data
       },
