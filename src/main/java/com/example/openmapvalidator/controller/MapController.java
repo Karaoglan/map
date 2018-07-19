@@ -64,8 +64,9 @@ public class MapController {
 
         fileName = fileName.trim().replaceAll("\\s","");
 
+        GeographicRectangle rectangle = null;
         try {
-            xmlFileParser.parseRectangleCoordinates(fileName);
+            rectangle = xmlFileParser.parseRectangleCoordinates(fileName);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SAXException e) {
@@ -74,12 +75,6 @@ public class MapController {
             e.printStackTrace();
         }
 
-        GeographicRectangle rectangle = new GeographicRectangle();
-      /*  rectangle.setMaxLatitude(maxLatitude);
-        rectangle.setMaxLongitude(maxLongitude);
-        rectangle.setMinLatitude(minLatitude);
-        rectangle.setMinLongitude(minLongitude);
-*/
         Map<String, Double> geographicValueMap = radiusHandler.handle(rectangle);
 
         String lat = geographicValueMap.get(Const.LATITUDE).toString();

@@ -5,31 +5,29 @@ import com.example.openmapvalidator.model.open.GeographicRectangle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-import javax.print.Doc;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Service
 public class XMLFileParser {
 
     private final DocumentBuilderFactory dbFactory;
+    private final FileHandler fileHandler;
 
     @Autowired
-    public XMLFileParser(DocumentBuilderFactory dbFactory) {
+    public XMLFileParser(DocumentBuilderFactory dbFactory, FileHandler fileHandler) {
         this.dbFactory = dbFactory;
+        this.fileHandler = fileHandler;
     }
 
     /**
@@ -45,21 +43,22 @@ public class XMLFileParser {
 
         File localFile = new File(new ClassPathResource(Const.MAP_FOLDER_ROOT).getFile(), fileName);
 
-        byte[] encoded = Files.readAllBytes(Paths.get(URI.create(localFile.getAbsolutePath())));
-        return new String(encoded, encoding);
+        //String osmXmlContent = new String(Files.readAllBytes(localFile.toPath()));
 
+        // in order to read som file content as xml
+       // File tmpFile = fileHandler.createTmpFileAndPutContent(osmXmlContent);
 
         Document doc = getDocumentForXmlParse(localFile);
-        NodeList nodeList = doc.getElementsByTagName("node");
-        //now XML is loaded as Document in memory, lets convert it to Object List
-        Node map = nodeList.item(0);
-        Node node = map.getChildNodes().item(0); //bounds
-        NamedNodeMap nodeMap = node.getAttributes();
+        NodeList nList = doc.getElementsByTagName("bounds");
+        Node nNode = nList.item(0);
 
-        String minlat = nodeMap.getNamedItem("minlat").getNodeValue();
-        String minlon = nodeMap.getNamedItem("minlon").getNodeValue();
-        String maxlat = nodeMap.getNamedItem("maxlat").getNodeValue();
-        String maxlon = nodeMap.getNamedItem("maxlon").getNodeValue();
+        Element eElement = (Element) nNode;
+
+        String minlat = eElement.getAttribute("minlat");
+        String minlon = eElement.getAttribute("minlon");
+        String maxlat = eElement.getAttribute("maxlat");
+        String maxlon = eElement.getAttribute("maxlon");
+
         GeographicRectangle rectangle = new GeographicRectangle();
         rectangle.setMinLongitude(Double.valueOf(minlon));
         rectangle.setMinLatitude(Double.valueOf(minlat));

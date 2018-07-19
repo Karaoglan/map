@@ -2,15 +2,12 @@ package com.example.openmapvalidator.service.file;
 
 import com.example.openmapvalidator.helper.Const;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.w3c.dom.Document;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 /**
@@ -33,5 +30,13 @@ public class FileHandler {
         return fileName;
     }
 
+    public File createTmpFileAndPutContent(String content) throws IOException {
+        File tmpFile = File.createTempFile("test", ".xml");
+        FileWriter writer = new FileWriter(tmpFile);
+        writer.write(content);
+        writer.close();
+
+        return tmpFile;
+    }
 
 }

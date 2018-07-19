@@ -17,14 +17,14 @@ export class AppComponent implements OnInit {
 
   fileToUpload: File = null;
   fileSelected: boolean = false;
-//[hidden]="isFileUploaded"
+  statisticCalled: boolean = false;
 
   closeResult: string;
 
   //TODO statistic mock values
   numberOfGooglePlaces;
   numberOfOpenPlaces;
-  numberOfTrueOpen;
+  numberOfFalseOpen;
 
   width = 600;
   height = 400;
@@ -47,12 +47,12 @@ export class AppComponent implements OnInit {
     "data": [
       {
         "label": "OpenstreetTrue",
-        "value": this.numberOfTrueOpen,
+        "value": this.numberOfOpenPlaces - this.numberOfFalseOpen,
         "color": "#3ADF00"
       },
       {
         "label": "OpenstreetFalse",
-        "value": this.numberOfOpenPlaces - this.numberOfTrueOpen,
+        "value": this.numberOfFalseOpen,
         "color": "#FF0000"
       },
       {
@@ -94,12 +94,14 @@ export class AppComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
-
-    if (this.fileSelected) {
-      console.info(this.fileToUpload.name);
-      this.handleStatistic(this.fileToUpload.name);
+  afterStatistic() {
+    if (this.statisticData.hasOwnProperty('numOfGooglePlaces')) {
+      this.numberOfGooglePlaces = this.statisticData["numOfGooglePlaces"];
+      this.numberOfOpenPlaces = this.statisticData["numOfOpenstreetMapPlaces"];
     }
+  }
+
+  ngOnInit() {
 
     let map;
 
@@ -108,9 +110,8 @@ export class AppComponent implements OnInit {
       zoom: 15
     });
 
-    if (this.statisticData.hasOwnProperty('numOfGooglePlaces')) {
-      this.numberOfGooglePlaces = this.statisticData["numOfGooglePlaces"];
-      this.numberOfOpenPlaces = this.statisticData["numOfOpenstreetMapPlaces"];
+    if (this.fileSelected && !this.statisticCalled) {
+      this.handleStatistic(this.fileToUpload.name);
     }
 
     if (this.data !== undefined) {
@@ -133,6 +134,8 @@ export class AppComponent implements OnInit {
 
         var marker;
         var i = 0;
+
+        this.numberOfFalseOpen = keys.length;
 
         for (let coordinate of keys) {
           //coordinate = 123.3 80.3
@@ -194,12 +197,11 @@ export class AppComponent implements OnInit {
       // the second argument is a function which runs on error
       err => console.error(err),
       // the third argument is a function which runs on completion
-      () => { console.log('done loading data'); this.ngOnInit();}
+      () => { console.log('done loading data'); this.statisticCalled = true; this.afterStatistic();}
     );
   }
 
   handleFileInput(files: FileList) {
-
     console.info("in post and get");
 
     this.fileToUpload = files.item(0);

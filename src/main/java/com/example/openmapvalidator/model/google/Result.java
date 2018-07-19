@@ -23,6 +23,7 @@ public class Result {
     private String rating;
     private String scope;
     private String price_level;
+    private Boolean permanently_closed;
     @JsonIgnore
     private List<Type> types;
     private String vicinity;

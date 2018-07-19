@@ -14,6 +14,10 @@ public class RadiusHandler {
 
     public Map<String, Double> handle(GeographicRectangle rectangle) {
 
+        if (rectangle == null) {
+            return null;
+        }
+
         Map<String, Double>  geographicValueMap = new HashMap<>();
 
         //<bounds minlat="48.1789100" minlon="16.3248500" maxlat="48.1801300" maxlon="16.3277300"/>

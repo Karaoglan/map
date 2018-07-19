@@ -2,6 +2,7 @@ package com.example.openmapvalidator.service.request;
 
 import com.example.openmapvalidator.helper.ConfigurationService;
 import com.example.openmapvalidator.helper.Const;
+import com.example.openmapvalidator.service.file.FileHandler;
 import com.example.openmapvalidator.service.file.XMLFileParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +31,15 @@ public class OpenStreetMapRequestHandler {
     private final RestTemplate restTemplate;
     private final ConfigurationService configurationService;
     private final XMLFileParser xmlFileParser;
+    private final FileHandler fileHandler;
 
     @Autowired
     public OpenStreetMapRequestHandler(RestTemplate restTemplate, ConfigurationService configurationService,
-                                       XMLFileParser xmlFileParser) {
+                                       XMLFileParser xmlFileParser, FileHandler fileHandler) {
         this.restTemplate = restTemplate;
         this.configurationService = configurationService;
         this.xmlFileParser = xmlFileParser;
+        this.fileHandler = fileHandler;
     }
 
     /**
@@ -58,10 +61,7 @@ public class OpenStreetMapRequestHandler {
 
         String result = restTemplate.getForObject(openStreetUriGet, String.class);
 
-        File tmpFile = File.createTempFile("test", ".xml");
-        FileWriter writer = new FileWriter(tmpFile);
-        writer.write(result);
-        writer.close();
+        File tmpFile = fileHandler.createTmpFileAndPutContent(result);
 
         Document doc = xmlFileParser.getDocumentForXmlParse(tmpFile);
         LOGGER.debug("Root element : {}", doc.getDocumentElement().getNodeName());
