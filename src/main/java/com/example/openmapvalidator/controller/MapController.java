@@ -1,29 +1,20 @@
 package com.example.openmapvalidator.controller;
 
-import com.example.openmapvalidator.helper.Const;
-import com.example.openmapvalidator.model.open.GeographicRectangle;
 import com.example.openmapvalidator.service.MapPlacesValidationHandler;
 import com.example.openmapvalidator.service.file.FileHandler;
-import com.example.openmapvalidator.service.file.XMLFileParser;
-import com.example.openmapvalidator.service.statistic.GoogleNearbyRequestHandler;
-import com.example.openmapvalidator.service.statistic.OpenmapRequestHandler;
-import com.example.openmapvalidator.service.statistic.RadiusHandler;
+import com.example.openmapvalidator.service.statistic.StatisticHandler;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author senan.ahmedov
+ * @author Sanan.Ahmadzada
  */
 @RestController
 @RequestMapping("/maps")
@@ -33,66 +24,21 @@ public class MapController {
 
     private final FileHandler fileHandlerImpl;
     private final MapPlacesValidationHandler mapPlacesValidationHandlerService;
-    private final GoogleNearbyRequestHandler googleNearbyRequestHandler;
-    private final RadiusHandler radiusHandler;
-    private final OpenmapRequestHandler openStreetMapRequestHandler;
-    private final XMLFileParser xmlFileParserImpl;
+    private final StatisticHandler statisticHandler;
     private final Gson gson;
 
-    public MapController(MapPlacesValidationHandler mapPlacesValidationHandlerService,
-                         GoogleNearbyRequestHandler googleNearbyRequestHandler,
-                         OpenmapRequestHandler openStreetMapRequestHandler, RadiusHandler radiusHandler,
-                         XMLFileParser xmlFileParserImpl,
-                         FileHandler fileHandlerImpl, Gson gson) {
-        this.mapPlacesValidationHandlerService = mapPlacesValidationHandlerService;
-        this.googleNearbyRequestHandler = googleNearbyRequestHandler;
-        this.openStreetMapRequestHandler = openStreetMapRequestHandler;
-        this.radiusHandler = radiusHandler;
+    public MapController(FileHandler fileHandlerImpl, MapPlacesValidationHandler mapPlacesValidationHandlerService,
+                         StatisticHandler statisticHandler, Gson gson) {
         this.fileHandlerImpl = fileHandlerImpl;
-        this.xmlFileParserImpl = xmlFileParserImpl;
+        this.mapPlacesValidationHandlerService = mapPlacesValidationHandlerService;
+        this.statisticHandler = statisticHandler;
         this.gson = gson;
     }
 
     @GetMapping
     public Map<String, Integer> statisticValues(@RequestParam String fileName) {
 
-        fileName = fileName.trim().replaceAll("\\s","");
-
-        GeographicRectangle rectangle = null;
-        try {
-            rectangle = xmlFileParserImpl.parseRectangleCoordinates(fileName);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        }
-
-        Map<String, Double> geographicValueMap = radiusHandler.handle(rectangle);
-
-        String lat = geographicValueMap.get(Const.LATITUDE).toString();
-        String lon = geographicValueMap.get(Const.LONGITUDE).toString();
-        double radius = geographicValueMap.get(Const.RADIUS);
-
-        int numOfGooglePlaces = 0;
-        int numOfOpenstreetMapPlaces = 0;
-
-        try {
-            numOfGooglePlaces = googleNearbyRequestHandler.handleNearbyWithRadius(lat, lon, radius);
-            numOfOpenstreetMapPlaces = openStreetMapRequestHandler.countOpenmapPlaces();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        Map<String, Integer> statisticValueMap = new HashMap<>();
-        statisticValueMap.put(Const.NUMBER_OF_GOOGLE_PLACES, numOfGooglePlaces);
-        statisticValueMap.put(Const.NUMBER_OF_OPENMAP_PLACES, numOfOpenstreetMapPlaces);
-
-
-        return statisticValueMap;
+        return statisticHandler.handle(fileName);
         //return mockStatisticData();
     }
 
