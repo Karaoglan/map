@@ -18,7 +18,6 @@ public class OsmToDBHandler {
 
     private final ConfigurationService configurationService;
 
-    @Autowired
     public OsmToDBHandler(ConfigurationService configurationService) {
         this.configurationService = configurationService;
     }

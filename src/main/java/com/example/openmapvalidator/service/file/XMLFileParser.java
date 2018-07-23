@@ -5,7 +5,10 @@ import com.example.openmapvalidator.model.open.GeographicRectangle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -13,21 +16,15 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 @Service
 public class XMLFileParser {
 
     private final DocumentBuilderFactory dbFactory;
-    private final FileHandler fileHandler;
 
     @Autowired
-    public XMLFileParser(DocumentBuilderFactory dbFactory, FileHandler fileHandler) {
+    public XMLFileParser(DocumentBuilderFactory dbFactory) {
         this.dbFactory = dbFactory;
-        this.fileHandler = fileHandler;
     }
 
     /**
@@ -42,11 +39,6 @@ public class XMLFileParser {
             throws IOException, SAXException, ParserConfigurationException {
 
         File localFile = new File(new ClassPathResource(Const.MAP_FOLDER_ROOT).getFile(), fileName);
-
-        //String osmXmlContent = new String(Files.readAllBytes(localFile.toPath()));
-
-        // in order to read som file content as xml
-       // File tmpFile = fileHandler.createTmpFileAndPutContent(osmXmlContent);
 
         Document doc = getDocumentForXmlParse(localFile);
         NodeList nList = doc.getElementsByTagName("bounds");

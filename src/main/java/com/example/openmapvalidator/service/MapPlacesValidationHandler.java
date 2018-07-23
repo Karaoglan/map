@@ -11,6 +11,7 @@ import com.example.openmapvalidator.service.request.FoursquareRequestHandler;
 import com.example.openmapvalidator.service.request.GoogleRequestHandler;
 import com.example.openmapvalidator.service.request.MicrosoftRequestHandler;
 import com.example.openmapvalidator.service.request.OpenStreetMapRequestHandler;
+import com.example.openmapvalidator.service.similarity.SimilarityCheckHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

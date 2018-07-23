@@ -176,6 +176,13 @@
         <microsoftmap.key>AlzLUTrsExYFb8algpyYPpDinKt_T3exD59iO7JsOt8GxTyleygsmqMZeU1pTIpQ</microsoftmap.key>
         <osm.database.name>map-db</osm.database.name>
         <similarity.score>0.65</similarity.score>
+        <similarity.algorithm>Levenshtein</similarity.algorithm>
+        <!--
+            ## VALID ALGORITHMS DEFAULT JAROWINKLER ##
+            JaroWinkler
+            Levenshtein
+            Jaccard
+        -->
     </properties>
 
 </project>

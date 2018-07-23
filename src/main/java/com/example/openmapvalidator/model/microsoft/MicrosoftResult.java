@@ -59,6 +59,7 @@ public class MicrosoftResult {
         private String url;
         private String phone;
         private String type;
+        private String transitStopCode;
         @JsonIgnore
         private List<OtherTypes> otherTypes;
         @JsonIgnore

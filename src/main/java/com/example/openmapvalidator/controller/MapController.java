@@ -44,7 +44,6 @@ public class MapController {
     private final XMLFileParser xmlFileParser;
     private final Gson gson;
 
-    @Autowired
     public MapController(MapPlacesValidationHandler mapPlacesValidationHandlerService,
                          GoogleNearbyRequestHandler googleNearbyRequestHandler,
                          OpenmapRequestHandler openStreetMapRequestHandler, RadiusHandler radiusHandler,

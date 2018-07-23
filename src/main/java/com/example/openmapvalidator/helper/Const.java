@@ -43,4 +43,8 @@ public class Const {
 
     public static final String API_ROOT_FOLDER = "/maps";
 
+    public static final String LEVENSHTEIN = "Levenshtein";
+    public static final String JARO_WINKLER = "JaroWinkler";
+    public static final String JACCARD = "Jaccard";
+
 }
