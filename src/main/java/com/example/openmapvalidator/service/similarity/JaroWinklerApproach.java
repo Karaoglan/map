@@ -2,7 +2,9 @@ package com.example.openmapvalidator.service.similarity;
 
 import info.debatty.java.stringsimilarity.JaroWinkler;
 import org.springframework.stereotype.Component;
-
+/**
+ * @author Sanan.Ahmadzada
+ */
 @Component
 public class JaroWinklerApproach implements SimilarityStrategy {
 

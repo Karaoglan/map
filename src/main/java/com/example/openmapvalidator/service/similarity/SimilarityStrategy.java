@@ -1,5 +1,7 @@
 package com.example.openmapvalidator.service.similarity;
-
+/**
+ * @author Sanan.Ahmadzada
+ */
 public interface SimilarityStrategy {
     /**
      * find similarity score between two given strings based on which

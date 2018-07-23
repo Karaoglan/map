@@ -19,35 +19,28 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * @author Sanan.Ahmadzada
+ */
 @Service
-public class OpenStreetMapRequestHandler {
+public class OpenStreetMapRequestHandler implements OpenstreetRequestHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenStreetMapRequestHandler.class);
 
     private final RestTemplate restTemplate;
     private final ConfigurationService configurationService;
-    private final XMLFileParser xmlFileParser;
-    private final FileHandler fileHandler;
+    private final XMLFileParser xmlFileParserImpl;
+    private final FileHandler fileHandlerImpl;
 
     @Autowired
     public OpenStreetMapRequestHandler(RestTemplate restTemplate, ConfigurationService configurationService,
-                                       XMLFileParser xmlFileParser, FileHandler fileHandler) {
+                                       XMLFileParser xmlFileParserImpl, FileHandler fileHandlerImpl) {
         this.restTemplate = restTemplate;
         this.configurationService = configurationService;
-        this.xmlFileParser = xmlFileParser;
-        this.fileHandler = fileHandler;
+        this.xmlFileParserImpl = xmlFileParserImpl;
+        this.fileHandlerImpl = fileHandlerImpl;
     }
 
-    /**
-     * Get latitude and longitude of a place which is stored in db retrieve with osm_id
-     *
-     * @param osmId openstreet map id
-     * @return
-     * @throws IOException
-     * @throws SAXException
-     * @throws ParserConfigurationException
-     */
     public Map<String, String> handle(String osmId) throws IOException, SAXException,
             ParserConfigurationException {
 
@@ -58,9 +51,9 @@ public class OpenStreetMapRequestHandler {
 
         String result = restTemplate.getForObject(openStreetUriGet, String.class);
 
-        File tmpFile = fileHandler.createTmpFileAndPutContent(result);
+        File tmpFile = fileHandlerImpl.createTmpFileAndPutContent(result);
 
-        Document doc = xmlFileParser.getDocumentForXmlParse(tmpFile);
+        Document doc = xmlFileParserImpl.getDocumentForXmlParse(tmpFile);
         LOGGER.debug("Root element : {}", doc.getDocumentElement().getNodeName());
         NodeList nodeList = doc.getElementsByTagName("node");
         //now XML is loaded as Document in memory, lets convert it to Object List

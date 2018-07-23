@@ -21,7 +21,6 @@ export class AppComponent implements OnInit {
 
   closeResult: string;
 
-  //TODO statistic mock values
   numberOfGooglePlaces;
   numberOfOpenPlaces;
   numberOfFalseOpen;
@@ -66,14 +65,12 @@ export class AppComponent implements OnInit {
   constructor(private demoService: DemoService,
               private modalService: NgbModal) { }
 
-  private areNullOrUndefined(arr) {
-    for (var i = 0; i < arr.length; i++) {
-      var itm = arr[i];
-      if (itm === null || itm === undefined) {
-        return true;
-      }
+  private isEmpty(obj) {
+    for(var key in obj) {
+      if(obj.hasOwnProperty(key))
+        return false;
     }
-    return false;
+    return true;
   }
 
   open(content) {
@@ -98,19 +95,23 @@ export class AppComponent implements OnInit {
     if (this.statisticData.hasOwnProperty('numOfGooglePlaces')) {
       this.numberOfGooglePlaces = this.statisticData["numOfGooglePlaces"];
       this.numberOfOpenPlaces = this.statisticData["numOfOpenstreetMapPlaces"];
+
+      this.dataSource.data[0].value = this.numberOfOpenPlaces - this.numberOfFalseOpen;
+      console.info("false open after statistic : " + this.numberOfFalseOpen);
+      this.dataSource.data[1].value = this.numberOfFalseOpen;
+      this.dataSource.data[2].value = this.numberOfGooglePlaces - this.numberOfOpenPlaces;
     }
   }
 
   ngOnInit() {
 
     let map;
-
     map = new google.maps.Map(document.getElementById('map'), {
-      center: {lat: 41.051268, lng: 37.411134},
+      center: {lat: 41.016309, lng: 28.963770},
       zoom: 15
     });
 
-    if (this.fileSelected && !this.statisticCalled) {
+    if (this.fileSelected) {
       this.handleStatistic(this.fileToUpload.name);
     }
 
@@ -119,68 +120,73 @@ export class AppComponent implements OnInit {
 
         this.data = JSON.parse(this.data.body);
 
-        let keys = Object.keys(this.data);
+        if (!this.isEmpty(this.data)) {
 
-        let splitCoordinateFocus = keys[0].split(',');
+          let keys = Object.keys(this.data);
 
-        const FOCUS = {lat: Number(splitCoordinateFocus[0]), lng: Number(splitCoordinateFocus[1])};
+          let splitCoordinateFocus = keys[0].split(',');
 
-        map = new google.maps.Map(document.getElementById('map'), {
-          center: FOCUS,
-          zoom: 15
-        });
+          const FOCUS = {lat: Number(splitCoordinateFocus[0]), lng: Number(splitCoordinateFocus[1])};
 
-        var infowindow = new google.maps.InfoWindow();
-
-        var marker;
-        var i = 0;
-
-        this.numberOfFalseOpen = keys.length;
-
-        for (let coordinate of keys) {
-          //coordinate = 123.3 80.3
-          let value = this.data[coordinate];
-          //value = google : name
-          // open : name
-
-          let googleName = value["google"];
-          let openName = value["openstreet"];
-          let foursqName = value["foursquare"];
-          let microsoftName = value["microsoft"];
-
-
-          let splitCoordinate = coordinate.split(',');
-
-          let lat = splitCoordinate[0];
-          let lon = splitCoordinate[1];
-
-          let openStreetMapLink = "<a target=\"_blank\" href=\"https://www.openstreetmap.org/#map=18/@LAT/@LON\">" +
-            "Open openstreetMap<a/>";
-          openStreetMapLink = openStreetMapLink
-            .replace("@LAT", lat)
-            .replace("@LON", lon);
-
-          console.info(openStreetMapLink);
-
-          marker = new google.maps.Marker({
-            position: new google.maps.LatLng(Number(lat), Number(lon)),
-            map: map
+          map = new google.maps.Map(document.getElementById('map'), {
+            center: FOCUS,
+            zoom: 15
           });
 
-          marker.setMap(map);
+          var infowindow = new google.maps.InfoWindow();
 
-          google.maps.event.addListener(marker, 'click', (function(marker, i) {
-            return function() {
-              infowindow.setContent('location(' + lat + "," + lon + ") - " + openStreetMapLink + "<br />" + "google:" +
-                " " + googleName +
-                "<br />" + "open: " +openName + "<br />" + "foursquare: " + foursqName
-                + "<br />" + "microsoft: " + microsoftName);
+          var marker;
+          var i = 0;
 
-              infowindow.open(map, marker);
-            }
-          })(marker, i));
+          this.numberOfFalseOpen = keys.length;
+          console.info("false open : " + this.numberOfFalseOpen);
 
-          i++;
+          for (let coordinate of keys) {
+            //coordinate = 123.3 80.3
+            let value = this.data[coordinate];
+            //value = google : name
+            // open : name
+
+            let googleName = value["google"];
+            let openName = value["openstreet"];
+            let foursqName = value["foursquare"];
+            let microsoftName = value["microsoft"];
+
+
+            let splitCoordinate = coordinate.split(',');
+
+            let lat = splitCoordinate[0];
+            let lon = splitCoordinate[1];
+
+            let openStreetMapLink = "<a target=\"_blank\" href=\"https://www.openstreetmap.org/#map=18/@LAT/@LON\">" +
+              "Open openstreetMap<a/>";
+            openStreetMapLink = openStreetMapLink
+              .replace("@LAT", lat)
+              .replace("@LON", lon);
+
+            console.info(openStreetMapLink);
+
+            marker = new google.maps.Marker({
+              position: new google.maps.LatLng(Number(lat), Number(lon)),
+              map: map
+            });
+
+            marker.setMap(map);
+
+            google.maps.event.addListener(marker, 'click', (function(marker, i) {
+              return function() {
+                infowindow.setContent('location(' + lat + "," + lon + ") - " + openStreetMapLink + "<br />" + "google:" +
+                  " " + googleName +
+                  "<br />" + "open: " +openName + "<br />" + "foursquare: " + foursqName
+                  + "<br />" + "microsoft: " + microsoftName);
+
+                infowindow.open(map, marker);
+              }
+            })(marker, i));
+
+            i++;
+
+          }
 
         }
 

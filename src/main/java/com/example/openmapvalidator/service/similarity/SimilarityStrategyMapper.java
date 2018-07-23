@@ -2,7 +2,9 @@ package com.example.openmapvalidator.service.similarity;
 
 import com.example.openmapvalidator.helper.Const;
 import org.springframework.stereotype.Component;
-
+/**
+ * @author Sanan.Ahmadzada
+ */
 @Component
 public class SimilarityStrategyMapper {
 

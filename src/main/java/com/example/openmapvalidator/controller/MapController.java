@@ -5,23 +5,18 @@ import com.example.openmapvalidator.model.open.GeographicRectangle;
 import com.example.openmapvalidator.service.MapPlacesValidationHandler;
 import com.example.openmapvalidator.service.file.FileHandler;
 import com.example.openmapvalidator.service.file.XMLFileParser;
-import com.example.openmapvalidator.service.request.OpenStreetMapRequestHandler;
 import com.example.openmapvalidator.service.statistic.GoogleNearbyRequestHandler;
 import com.example.openmapvalidator.service.statistic.OpenmapRequestHandler;
 import com.example.openmapvalidator.service.statistic.RadiusHandler;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -36,25 +31,25 @@ public class MapController {
 
     private static final Logger logger = LoggerFactory.getLogger(MapController.class);
 
-    private final FileHandler fileHandler;
+    private final FileHandler fileHandlerImpl;
     private final MapPlacesValidationHandler mapPlacesValidationHandlerService;
     private final GoogleNearbyRequestHandler googleNearbyRequestHandler;
     private final RadiusHandler radiusHandler;
     private final OpenmapRequestHandler openStreetMapRequestHandler;
-    private final XMLFileParser xmlFileParser;
+    private final XMLFileParser xmlFileParserImpl;
     private final Gson gson;
 
     public MapController(MapPlacesValidationHandler mapPlacesValidationHandlerService,
                          GoogleNearbyRequestHandler googleNearbyRequestHandler,
                          OpenmapRequestHandler openStreetMapRequestHandler, RadiusHandler radiusHandler,
-                         XMLFileParser xmlFileParser,
-                         FileHandler fileHandler, Gson gson) {
+                         XMLFileParser xmlFileParserImpl,
+                         FileHandler fileHandlerImpl, Gson gson) {
         this.mapPlacesValidationHandlerService = mapPlacesValidationHandlerService;
         this.googleNearbyRequestHandler = googleNearbyRequestHandler;
         this.openStreetMapRequestHandler = openStreetMapRequestHandler;
         this.radiusHandler = radiusHandler;
-        this.fileHandler = fileHandler;
-        this.xmlFileParser = xmlFileParser;
+        this.fileHandlerImpl = fileHandlerImpl;
+        this.xmlFileParserImpl = xmlFileParserImpl;
         this.gson = gson;
     }
 
@@ -65,7 +60,7 @@ public class MapController {
 
         GeographicRectangle rectangle = null;
         try {
-            rectangle = xmlFileParser.parseRectangleCoordinates(fileName);
+            rectangle = xmlFileParserImpl.parseRectangleCoordinates(fileName);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SAXException e) {
@@ -98,15 +93,14 @@ public class MapController {
 
 
         return statisticValueMap;
+        //return mockStatisticData();
     }
-
-    //TODO brk add, strategy pattern uygulanabilir mi similarity algo icin?
 
     @PostMapping
     public Map<String, Map<String, String>> uploadFile(@RequestParam MultipartFile file) {
         logger.info("NEW REQUEST");
 
-        String fileName = fileHandler.saveFile(file);
+        String fileName = fileHandlerImpl.saveFile(file);
 
         Map<String, Map<String, String>> map =
                 mapPlacesValidationHandlerService.saveAndCallForPlaceCoordinates(fileName);
@@ -116,15 +110,14 @@ public class MapController {
 
         return map;
 
-        /*Map<String, Map<String, String>> map = null;
-        try {
-            map = mockData();
+        //return mockData();
+    }
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return map;*/
+    private Map<String, Integer> mockStatisticData() {
+        String json = "{\"numOfGooglePlaces\":8,\"numOfOpenstreetMapPlaces\":7}";
+        // convert JSON string to Map
+        Type type = new TypeToken<Map<String, Integer>>(){}.getType();
+        return gson.fromJson(json, type);
     }
 
     private Map<String, Map<String, String>> mockData() {

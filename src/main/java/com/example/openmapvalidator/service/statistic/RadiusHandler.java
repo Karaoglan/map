@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
+
+/**
+ * @author Sanan.Ahmadzada
+ */
 @Service
 public class RadiusHandler {
 
@@ -48,14 +52,6 @@ public class RadiusHandler {
         System.out.println("height : " + height);
 
         double radius = 0.5 * Math.sqrt(width * width + height * height);
-
-        /*
-        (2 * s^2)^(1/2)
-        (2 * 500^2)^(1/2) ~= 707
-        The diagonal of this square is the diameter of the circumscribing circle. To get the radius, we divide by 2:
-
-        707 / 2 ~= 353*/
-
 
         System.out.println("radius : " + radius);
         geographicValueMap.put("radius", radius);

@@ -1,5 +1,7 @@
 package com.example.openmapvalidator.service.similarity;
-
+/**
+ * @author Sanan.Ahmadzada
+ */
 public class SimilarityStrategyContext {
 
     private final SimilarityStrategy strategy;

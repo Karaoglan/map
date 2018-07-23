@@ -10,9 +10,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
-
+/**
+ * @author Sanan.Ahmadzada
+ */
 @Component
-public class DatabaseSession {
+public class DatabaseSession implements DBSessionProvider {
 
     private final ConfigurationService configurationService;
 

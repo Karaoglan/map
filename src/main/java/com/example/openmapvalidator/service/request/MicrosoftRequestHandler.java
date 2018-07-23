@@ -2,6 +2,7 @@ package com.example.openmapvalidator.service.request;
 
 import com.example.openmapvalidator.helper.ConfigurationService;
 import com.example.openmapvalidator.helper.Const;
+import com.example.openmapvalidator.model.RequestModel;
 import com.example.openmapvalidator.model.microsoft.MicrosoftResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -11,9 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-
+/**
+ * @author Sanan.Ahmadzada
+ */
 @Service
-public class MicrosoftRequestHandler {
+public class MicrosoftRequestHandler implements RequestHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MicrosoftRequestHandler.class);
 
@@ -28,14 +31,7 @@ public class MicrosoftRequestHandler {
         this.configurationService = configurationService;
     }
 
-    /**
-     * get detail of a place which is near to given latitude and longitude
-     *
-     * its just applied to USA but in any short time other countries will added
-     *
-     * @param lat latitude and @param lon longitude
-     */
-    public MicrosoftResult handle(String lat, String lon) throws IOException {
+    public RequestModel handle(String lat, String lon) throws IOException {
 
         String microsoftUriSearch = configurationService.getMICROSOFTMAP_SEARCH_WITH_LONG()
                 .replace(Const.LATITUDE_REPLACEMENT_SHORTCUT, lat)
