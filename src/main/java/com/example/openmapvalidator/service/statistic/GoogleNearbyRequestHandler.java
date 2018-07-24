@@ -56,7 +56,7 @@ public class GoogleNearbyRequestHandler {
 
             String urlWithNextPage = nearbyNextPageRequestOrj.replace("@PAGE_TOKEN", result.getNext_page_token());
 
-            Thread.sleep(1500);
+            Thread.sleep(2000);
             String googleResultStrWithNext = restTemplate.getForObject(
                     urlWithNextPage, String.class);
 

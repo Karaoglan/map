@@ -40,8 +40,6 @@ public class GoogleRequestHandler implements RequestHandler {
         String googleResultStr = restTemplate.getForObject(
                 googleUriSearch, String.class);
 
-        LOGGER.debug(googleResultStr);
-
         return objectMapper.readValue(googleResultStr, GoogleResult.class);
     }
 }

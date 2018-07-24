@@ -4,6 +4,8 @@ import com.example.openmapvalidator.model.open.GeographicRectangle;
 import com.javadocmd.simplelatlng.LatLng;
 import com.javadocmd.simplelatlng.LatLngTool;
 import com.javadocmd.simplelatlng.util.LengthUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -15,6 +17,8 @@ import java.util.Map;
  */
 @Service
 public class RadiusHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RadiusHandler.class);
 
     public Map<String, Double> handle(GeographicRectangle rectangle) {
 
@@ -48,12 +52,12 @@ public class RadiusHandler {
         LatLng widthPointRight = new LatLng(widthLatitudeRight, widthLongitudeRight);
         double width = LatLngTool.distance(widthPointLeft, widthPointRight, LengthUnit.METER);
 
-        System.out.println("width : " + width);
-        System.out.println("height : " + height);
+        LOGGER.info("width : {}", width);
+        LOGGER.info("height : {}", height);
 
         double radius = 0.5 * Math.sqrt(width * width + height * height);
 
-        System.out.println("radius : " + radius);
+        LOGGER.info("radius : {}", radius);
         geographicValueMap.put("radius", radius);
 
         double bearingWidth = LatLngTool.initialBearing(widthPointLeft, widthPointRight);
@@ -65,7 +69,7 @@ public class RadiusHandler {
         geographicValueMap.put("latitude", heightMidPoint.getLatitude());
         geographicValueMap.put("longitude", widthMidPoint.getLongitude());
 
-        System.out.println(heightMidPoint.getLatitude() + ", " + widthMidPoint.getLongitude());
+        LOGGER.info("{}, {}", heightMidPoint.getLatitude(), widthMidPoint.getLongitude());
         return geographicValueMap;
     }
 }

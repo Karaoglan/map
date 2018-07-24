@@ -17,6 +17,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +76,9 @@ public class MapPlacesValidationHandler {
 
             SqlSession session = databaseSession.getDBSession();
             List<PlaceDBModel> list = session.selectList(Const.OSM_PSQL_PLACE_SELECT_QUERY_IDENTIFIER);
+
+            LOGGER.debug("list of osm db places elements");
+            LOGGER.debug(Arrays.toString(list.toArray()));
 
             ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 

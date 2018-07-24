@@ -54,7 +54,6 @@ public class OpenStreetMapRequestHandler implements OpenstreetRequestHandler {
         File tmpFile = fileHandlerImpl.createTmpFileAndPutContent(result);
 
         Document doc = xmlFileParserImpl.getDocumentForXmlParse(tmpFile);
-        LOGGER.debug("Root element : {}", doc.getDocumentElement().getNodeName());
         NodeList nodeList = doc.getElementsByTagName("node");
         //now XML is loaded as Document in memory, lets convert it to Object List
         NamedNodeMap map = nodeList.item(0).getAttributes();

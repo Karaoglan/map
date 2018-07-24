@@ -40,8 +40,6 @@ public class MicrosoftRequestHandler implements RequestHandler {
         String microsoftResultStr = restTemplate.getForObject(
                 microsoftUriSearch, String.class);
 
-        LOGGER.debug(microsoftResultStr);
-
         return objectMapper.readValue(microsoftResultStr, MicrosoftResult.class);
     }
 }

@@ -47,8 +47,6 @@ public class FoursquareRequestHandler implements RequestHandler {
         String foursquareResultStr = restTemplate.getForObject(
                 foursquareUriSearch, String.class);
 
-        LOGGER.debug(foursquareResultStr);
-
         return objectMapper.readValue(foursquareResultStr, FoursquareResult.class);
     }
 

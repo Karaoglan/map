@@ -28,12 +28,15 @@ public class OsmToDBHandlerImpl implements OsmToDBHandler {
         boolean isWindows = System.getProperty(Const.OS_NAME)
                 .toLowerCase().startsWith(Const.OS_WINDOWS_NAME);
 
+        StreamWrapper error, output;
+
         try {
 
             String OSM_ROOT;
             String cmd;
 
             String root = new File(System.getProperty("user.dir")).getAbsolutePath();
+
 
             if (isWindows) {
                 OSM_ROOT = Const.OSM_WINDOWS_ROOT;
@@ -60,7 +63,7 @@ public class OsmToDBHandlerImpl implements OsmToDBHandler {
             LOGGER.info(cmd);
 
             Runtime rt = Runtime.getRuntime();
-            StreamWrapper error, output;
+
 
             Process proc = rt.exec(cmd);
 
@@ -72,6 +75,9 @@ public class OsmToDBHandlerImpl implements OsmToDBHandler {
             output.start();
             error.join(3000);
             output.join(3000);
+
+            LOGGER.debug("isAlive before ? : {}", proc.isAlive());
+
             exitVal = proc.waitFor();
             LOGGER.info("exitVal: {}\nOutput: {}\nError: {}", exitVal, output.getMessage(), error.getMessage());
 
@@ -79,9 +85,15 @@ public class OsmToDBHandlerImpl implements OsmToDBHandler {
                 LOGGER.error("Please resolve error");
                 System.exit(1);
             }
+            Thread.sleep(5000);
+            LOGGER.debug("isAlive? : {}", proc.isAlive());
+            proc.destroy();
         } catch(Exception e) {
             LOGGER.error(e.toString());
             e.printStackTrace();
+            System.exit(-1);
+        } finally {
+
         }
 
     }
