@@ -52,6 +52,17 @@ public class GoogleNearbyRequestHandler {
         GoogleResult result = objectMapper.readValue(googleResultStr, GoogleResult.class);
         int count = result.getResults().size();
 
+
+        // TODO https://developers.google.com/places/web-service/search
+        /**
+         *
+         * next_page_token contains a token that can be used to return
+         * up to 20 additional results. A next_page_token will not be returned
+         * if there are no additional results to display. The maximum number of
+         * results that can be returned is 60. There is a short delay between
+         * when a next_page_token is issued, and when it will become valid.
+         *
+         */
         while (result.getNext_page_token() != null) {
 
             String urlWithNextPage = nearbyNextPageRequestOrj.replace("@PAGE_TOKEN", result.getNext_page_token());
