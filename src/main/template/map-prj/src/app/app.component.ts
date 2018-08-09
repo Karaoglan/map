@@ -196,6 +196,7 @@ export class AppComponent implements OnInit {
   }
 
   handleStatistic(fileName) {
+    console.info("file : " + fileName);
     this.demoService.statistic(fileName).subscribe(
       // the first argument is a function which runs on success
       data => { console.log('check THIS!!' + data); this.statisticData = data
@@ -211,6 +212,11 @@ export class AppComponent implements OnInit {
     console.info("in post and get");
 
     this.fileToUpload = files.item(0);
+
+    if (this.fileToUpload.name.includes('&')) {
+      alert('Please dont use ampersand for the name of file, upload new file!');
+      return;
+    }
 
     this.demoService.upload(this.fileToUpload).subscribe(
       // the first argument is a function which runs on success

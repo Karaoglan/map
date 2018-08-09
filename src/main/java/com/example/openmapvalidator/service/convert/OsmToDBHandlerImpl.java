@@ -8,61 +8,80 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.annotation.RequestScope;
+import org.springframework.web.context.annotation.SessionScope;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Sanan.Ahmadzada
  */
-@Component
+@Repository
+@SessionScope
 public class OsmToDBHandlerImpl implements OsmToDBHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OsmToDBHandlerImpl.class);
 
     private final ConfigurationService configurationService;
 
+
     public OsmToDBHandlerImpl(ConfigurationService configurationService) {
         this.configurationService = configurationService;
     }
 
+
     public void handle(String fileName) {
+
+        long begin = System.currentTimeMillis();
 
         boolean isWindows = System.getProperty(Const.OS_NAME)
                 .toLowerCase().startsWith(Const.OS_WINDOWS_NAME);
 
         StreamWrapper error, output;
 
+        Process process = null;
+
         try {
 
             String OSM_ROOT;
-            String cmd;
-
             String root = new File(System.getProperty("user.dir")).getAbsolutePath();
 
-            ProcessBuilder builder = new ProcessBuilder();
+            String f = new ClassPathResource(Const.MAP_FOLDER_ROOT).getFile().getAbsolutePath() + File.separator + fileName;
+
 
             if (isWindows) {
                 OSM_ROOT = Const.OSM_WINDOWS_ROOT;
 
                 String path = root + OSM_ROOT;
 
-                builder.command("./"+Const.OSM_COMMAND, "-c",
-                        "-d", configurationService.getOSM_COMMAND_DATABASE_ARGUMENT(),
-                        Const.OSM_COMMAND_USERNAME_OPTION, configurationService.getPSQL_USERNAME(),
-                        Const.OSM_DEFAULT_STYLE_OPTION, path + File.separator + Const.OSM_STYLE,
-                        new ClassPathResource(Const.MAP_FOLDER_ROOT).getFile().getAbsolutePath() + File.separator + fileName);
+                String command = path + File.separator + Const.OSM_COMMAND + ".exe";
+
+
+                String stylePath = "--style=" + "C:" + File.separator + Const.OSM_STYLE;
+                LOGGER.debug("stylepath path {}", stylePath);
+
+                process = new ProcessBuilder(command, "-c", "--database=map-db", "-s", "--user=postgres",
+                        "-C 22000", stylePath, f).start();
 
             } else {
                 OSM_ROOT = Const.OSM_UNIX_ROOT;
 
                 String path = root + OSM_ROOT;
 
-                cmd = path + File.separator + Const.OSM_COMMAND + Const.SPACE + Const.OSM_COMMAND_CREATE_OPTION +
+                String command = path + File.separator + Const.OSM_COMMAND;
+
+                /*cmd = path + File.separator + Const.OSM_COMMAND + Const.SPACE + Const.OSM_COMMAND_CREATE_OPTION +
                         Const.SPACE + Const.OSM_COMMAND_DATABASE_OPTION + Const.SPACE + configurationService.getOSM_COMMAND_DATABASE_ARGUMENT() +
-                        Const.SPACE + new ClassPathResource(Const.MAP_FOLDER_ROOT).getFile().getAbsolutePath() + File.separator + fileName;
+                        Const.SPACE + new ClassPathResource(Const.MAP_FOLDER_ROOT).getFile().getAbsolutePath() + File.separator + fileName;*/
+
+                process = new ProcessBuilder(command, "--append", "--database=map-db", "--user=postgres",
+                        "-C 22000", "--slim", f).start();
             }
 //
             /*Process proc = rt.exec(cmd);
@@ -88,24 +107,21 @@ public class OsmToDBHandlerImpl implements OsmToDBHandler {
             Thread.sleep(5000);
             LOGGER.debug("isAlive? : {}", proc.isAlive());*/
             //proc.destroy();
-
-            cmd = "C:\\dev\\projects\\map\\bashscript\\windows\\osm2pgsql-bin\\osm2pgsql -c -d map-db -U postgres " +
-                    "-S C:\\dev\\projects\\map\\bashscript\\windows\\osm2pgsql-bin\\default.style " +
-                    "C:\\dev\\projects\\map\\target\\classes\\map\\bostonmap.osm";
-
+//
+//            cmd = "C:\\dev\\projects\\map\\bashscript\\windows\\osm2pgsql-bin\\osm2pgsql -c -d map-db -U postgres " +
+//                    "-S C:\\dev\\projects\\map\\bashscript\\windows\\osm2pgsql-bin\\default.style " +
+//                    "C:\\dev\\projects\\map\\target\\classes\\map\\bostonmap.osm";
+//
 
             LOGGER.debug("------");
             //LOGGER.debug(Arrays.toString(builder.command().toArray()));
 
 
             //builder.command("cmd.exe", "/c", "dir");
-            String workingDir = System.getProperty("user.dir");
+           /* String workingDir = System.getProperty("user.dir");
             File file = new File(workingDir + File.separator + "bashscript" + File.separator + "windows" + File.separator +
                     "osm2pgsql-bin" + File.separator + "osm2pgsql.exe");
-            builder.directory(file);
-
-            OSM_ROOT = Const.OSM_WINDOWS_ROOT;
-            String path = root + OSM_ROOT;
+            builder.directory(file);*/
 
             /*String options = "-c -d " + configurationService.getOSM_COMMAND_DATABASE_ARGUMENT() + Const.SPACE
                     + Const.OSM_COMMAND_USERNAME_OPTION + Const.SPACE
@@ -118,42 +134,38 @@ public class OsmToDBHandlerImpl implements OsmToDBHandler {
             String[] commands = {path + File.separator + Const.OSM_COMMAND + ".exe", options};
             Process process = Runtime.getRuntime().exec(commands);
 */
-
-            String s = null;
-            File dir = new ClassPathResource("map").getFile();
-
             // -S C:\dev\projects\map\bashscript\windows\osm2pgsql-bin\default.style
 
-            String command = path + File.separator + Const.OSM_COMMAND + ".exe";
 
             //  + " -c -d map-db -U postgres " +
             //                    fileName;
-            LOGGER.debug(command);
+            //LOGGER.debug(command);
 
-            String stylePath = "--style=" + "C:" + File.separator + Const.OSM_STYLE;
-            LOGGER.debug("stylepath path {}", stylePath);
-            String f = new ClassPathResource(Const.MAP_FOLDER_ROOT).getFile().getAbsolutePath() + File.separator + fileName;
 
-            Process process = new ProcessBuilder(command, "-c", "--database=map-db", "-s", "--user=postgres",
-            stylePath, f).start();
 
             error = new StreamWrapper(process.getErrorStream(), "ERROR");
             output = new StreamWrapper(process.getInputStream(), "OUTPUT");
 
-            int exitVal;
+            boolean exitVal;
 
             error.start();
             output.start();
             error.join(3000);
-            output.join(3000);
+            output.join(3000); //it was litte bit kind of slow also here
 
-            exitVal = process.waitFor();
 
+            exitVal = process.waitFor(10, TimeUnit.SECONDS); //after here it hangs
+
+            //those are from that command also in first request i had same outputs but it hangs after that
+
+            long end = System.currentTimeMillis();
             LOGGER.info("exitVal: {}\nOutput: {}\nError: {}", exitVal, output.getMessage(), error.getMessage());
 
-            if (exitVal != 0) {
+            LOGGER.info("total time for 20mb file to convert it -> {}", end - begin);
+
+            if (!exitVal) {
                 LOGGER.error("Please resolve error");
-                System.exit(1);
+                //System.exit(1);
             }
 
             /*Process p = Runtime.getRuntime().exec(command, null, dir);
@@ -179,15 +191,24 @@ public class OsmToDBHandlerImpl implements OsmToDBHandler {
             //LOGGER.debug("Echo Output:\n" + output(process.getInputStream()));
 
             //assert exitCode == 0;
+            // TODO try as a env. variable.
 
             //TODO osm2pgsql find a way to run it from classpath
 
         } catch(Exception e) {
             LOGGER.error(e.toString());
             e.printStackTrace();
-            System.exit(-1);
+            //System.exit(-1);
+        } finally {
+            try {
+                process.getOutputStream().close();
+                process.getInputStream().close();
+                process.getErrorStream().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }process.destroy();
+            process.destroyForcibly();
         }
-
     }
 
     private static String output(InputStream inputStream) throws IOException {

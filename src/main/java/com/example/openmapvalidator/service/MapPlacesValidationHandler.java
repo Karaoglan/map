@@ -77,14 +77,15 @@ public class MapPlacesValidationHandler {
             SqlSession session = databaseSession.getDBSession();
             List<PlaceDBModel> list = session.selectList(Const.OSM_PSQL_PLACE_SELECT_QUERY_IDENTIFIER);
 
-            LOGGER.debug("list of osm db places elements");
+            LOGGER.debug("list of osm db places elements"); //ok i got 9 eleemnt from db which is correct i got data
+            // from thtat file second time now
             LOGGER.debug(Arrays.toString(list.toArray()));
 
             ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
             long beforeTime = System.currentTimeMillis();
 
-            for (PlaceDBModel model : list) {
+            /*for (PlaceDBModel model : list) {
 
                 LOGGER.debug("Id: {} & Name: {}", model.getOsm_id(), model.getName());
 
@@ -92,7 +93,7 @@ public class MapPlacesValidationHandler {
                     nameMap.putAll(makeApiCallForPlaceToCompare(model));
                 });
 
-            }
+            }*/
 
             executorService.shutdown();
             executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
