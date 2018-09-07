@@ -85,15 +85,15 @@ public class MapPlacesValidationHandler {
 
             long beforeTime = System.currentTimeMillis();
 
-            /*for (PlaceDBModel model : list) {
+            for (PlaceDBModel model : list) {
 
                 LOGGER.debug("Id: {} & Name: {}", model.getOsm_id(), model.getName());
 
-                executorService.execute(() -> {
-                    nameMap.putAll(makeApiCallForPlaceToCompare(model));
-                });
+                //executorService.execute(() -> {
+               //     nameMap.putAll(makeApiCallForPlaceToCompare(model));
+              //  });
 
-            }*/
+            }
 
             executorService.shutdown();
             executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
