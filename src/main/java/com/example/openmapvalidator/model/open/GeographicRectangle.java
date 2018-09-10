@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class GeographicRectangle {
-    private double minLatitude;
-    private double minLongitude;
-    private double maxLatitude;
-    private double maxLongitude;
+    private String minLatitude;
+    private String minLongitude;
+    private String maxLatitude;
+    private String maxLongitude;
 }

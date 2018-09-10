@@ -3,8 +3,7 @@ san-map
 --prerequisites
 * postgresql service should be active
 * npm command should be defined as environment variable
-* ng command also should be installed as global from npm
-npm install -g @angular/cli
+npm start
 * osm2plsql is already inside of project but for windows
  - http://download.osgeo.org/postgis/windows/pg10/ postgis should be installed
     and "CREATE EXTENSION postgis; CREATE EXTENSION hstore;" those extensions should be

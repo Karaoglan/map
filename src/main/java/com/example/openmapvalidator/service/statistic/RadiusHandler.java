@@ -20,29 +20,29 @@ public class RadiusHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RadiusHandler.class);
 
-    public Map<String, Double> handle(GeographicRectangle rectangle) {
+    public Map<String, String> handle(GeographicRectangle rectangle) {
 
         if (rectangle == null) {
             return null;
         }
 
-        Map<String, Double>  geographicValueMap = new HashMap<>();
+        Map<String, String>  geographicValueMap = new HashMap<>();
 
         //<bounds minlat="48.1789100" minlon="16.3248500" maxlat="48.1801300" maxlon="16.3277300"/>
 
         //maxlat, minlon      maxlat, maxlon
         //minlat, minlon      minlat, maxlon
 
-        double heightLatitudeUp = rectangle.getMaxLatitude();
-        double heightLongitudeUp = rectangle.getMinLongitude();
+        double heightLatitudeUp = Double.valueOf(rectangle.getMaxLatitude());
+        double heightLongitudeUp = Double.valueOf(rectangle.getMinLongitude());
 
-        double heightLatitudeDown = rectangle.getMinLatitude();
-        double heightLongitudeDown = rectangle.getMinLongitude();
+        double heightLatitudeDown = Double.valueOf(rectangle.getMinLatitude());
+        double heightLongitudeDown = Double.valueOf(rectangle.getMinLongitude());
 
-        double widthLatitudeLeft = rectangle.getMinLatitude();
-        double widthLongitudeLeft = rectangle.getMinLongitude();
-        double widthLatitudeRight = rectangle.getMinLatitude();
-        double widthLongitudeRight = rectangle.getMaxLongitude();
+        double widthLatitudeLeft = Double.valueOf(rectangle.getMinLatitude());
+        double widthLongitudeLeft = Double.valueOf(rectangle.getMinLongitude());
+        double widthLatitudeRight = Double.valueOf(rectangle.getMinLatitude());
+        double widthLongitudeRight = Double.valueOf(rectangle.getMaxLongitude());
 
         LatLng heightPointUp = new LatLng(heightLatitudeUp, heightLongitudeUp);
         LatLng heightPointDown = new LatLng(heightLatitudeDown, heightLongitudeDown);
@@ -55,10 +55,10 @@ public class RadiusHandler {
         LOGGER.info("width : {}", width);
         LOGGER.info("height : {}", height);
 
-        double radius = 0.5 * Math.sqrt(width * width + height * height);
+        Double radius = 0.5 * Math.sqrt(width * width + height * height);
 
         LOGGER.info("radius : {}", radius);
-        geographicValueMap.put("radius", radius);
+        geographicValueMap.put("radius", radius.toString());
 
         double bearingWidth = LatLngTool.initialBearing(widthPointLeft, widthPointRight);
         double bearingHeight = LatLngTool.initialBearing(heightPointUp, heightPointDown);
@@ -66,8 +66,8 @@ public class RadiusHandler {
         LatLng widthMidPoint = LatLngTool.travel(widthPointLeft, bearingWidth, width / 2, LengthUnit.METER);
         LatLng heightMidPoint = LatLngTool.travel(heightPointUp, bearingHeight, height / 2, LengthUnit.METER);
 
-        geographicValueMap.put("latitude", heightMidPoint.getLatitude());
-        geographicValueMap.put("longitude", widthMidPoint.getLongitude());
+        geographicValueMap.put("latitude", "" + heightMidPoint.getLatitude());
+        geographicValueMap.put("longitude", "" + widthMidPoint.getLongitude());
 
         LOGGER.info("{}, {}", heightMidPoint.getLatitude(), widthMidPoint.getLongitude());
         return geographicValueMap;

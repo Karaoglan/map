@@ -29,6 +29,34 @@ export class AppComponent implements OnInit {
   height = 400;
   type = 'pie3d';
   dataFormat = 'json';
+  dataSourceGoogle = {
+    "chart": {
+      "caption": "Openstreetmap places names mapping",
+      "subcaption": "Comparing to Google Maps Places",
+      "startingangle": "120",
+      "showlabels": "1",
+      "showlegend": "1",
+      "enablemultislicing": "0",
+      "slicingdistance": "15",
+      "showpercentvalues": "1",
+      "showpercentintooltip": "1",
+      "plottooltext": "Age group : $label Total visit : $datavalue",
+      "theme": "ocean"
+    },
+    "data": [
+      {
+        "label": "Google Alle Places",
+        "value": this.numberOfGooglePlaces,
+        "color": "#3ADF00"
+      },
+      {
+        "label": "Openstreet Alle Places",
+        "value": this.numberOfOpenPlaces,
+        "color": "#A9F5F2"
+      }
+    ]
+  };
+
   dataSource = {
     "chart": {
       "caption": "Openstreetmap places names mapping",
@@ -45,19 +73,14 @@ export class AppComponent implements OnInit {
     },
     "data": [
       {
-        "label": "OpenstreetTrue",
+        "label": "Openstreet Richtig abgebildet",
         "value": this.numberOfOpenPlaces - this.numberOfFalseOpen,
         "color": "#3ADF00"
       },
       {
-        "label": "OpenstreetFalse",
+        "label": "Openstreet Falsch abgebildet",
         "value": this.numberOfFalseOpen,
         "color": "#FF0000"
-      },
-      {
-        "label": "OpenstreetNotmapped",
-        "value": this.numberOfGooglePlaces - this.numberOfOpenPlaces,
-        "color": "#A9F5F2"
       }
     ]
   };
@@ -96,10 +119,12 @@ export class AppComponent implements OnInit {
       this.numberOfGooglePlaces = this.statisticData["numOfGooglePlaces"];
       this.numberOfOpenPlaces = this.statisticData["numOfOpenstreetMapPlaces"];
 
+      this.dataSourceGoogle.data[0].value = this.numberOfGooglePlaces;
+      this.dataSourceGoogle.data[1].value = this.numberOfOpenPlaces;
+
       this.dataSource.data[0].value = this.numberOfOpenPlaces - this.numberOfFalseOpen;
       console.info("false open after statistic : " + this.numberOfFalseOpen);
       this.dataSource.data[1].value = this.numberOfFalseOpen;
-      this.dataSource.data[2].value = this.numberOfGooglePlaces - this.numberOfOpenPlaces;
     }
   }
 

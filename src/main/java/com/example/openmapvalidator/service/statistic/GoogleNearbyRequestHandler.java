@@ -36,7 +36,7 @@ public class GoogleNearbyRequestHandler {
      *
      * @return number of all google places inside of circle
      */
-    public int handleNearbyWithRadius(String lat, String lon, double radius) throws InterruptedException, IOException {
+    public int handleNearbyWithRadius(String lat, String lon, String radius) throws InterruptedException, IOException {
 
         String nearbyRequestUrlOrj  = configurationService.getGOOGLE_SEARCH_NEARBY_RADIUS();
 
@@ -44,7 +44,7 @@ public class GoogleNearbyRequestHandler {
 
         String nearbyRequestUrl = nearbyRequestUrlOrj.replace("@LAT", lat)
                 .replace("@LON", lon)
-                .replace("@RADIUS", String.valueOf(radius));
+                .replace("@RADIUS", radius);
 
         String googleResultStr = restTemplate.getForObject(
                 nearbyRequestUrl, String.class);

@@ -41,16 +41,11 @@ public class XMLFileParserImpl implements XMLFileParser {
 
         Element eElement = (Element) nNode;
 
-        String minlat = eElement.getAttribute("minlat");
-        String minlon = eElement.getAttribute("minlon");
-        String maxlat = eElement.getAttribute("maxlat");
-        String maxlon = eElement.getAttribute("maxlon");
-
         GeographicRectangle rectangle = new GeographicRectangle();
-        rectangle.setMinLongitude(Double.valueOf(minlon));
-        rectangle.setMinLatitude(Double.valueOf(minlat));
-        rectangle.setMaxLongitude(Double.valueOf(maxlon));
-        rectangle.setMaxLatitude(Double.valueOf(maxlat));
+        rectangle.setMinLongitude(eElement.getAttribute("minlon"));
+        rectangle.setMinLatitude(eElement.getAttribute("minlat"));
+        rectangle.setMaxLongitude(eElement.getAttribute("maxlon"));
+        rectangle.setMaxLatitude(eElement.getAttribute("maxlat"));
 
         return rectangle;
     }

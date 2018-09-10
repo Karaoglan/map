@@ -82,7 +82,8 @@ public class OsmToDBHandlerImpl implements OsmToDBHandler {
                 LOGGER.info("command path is : {}", command);
 
 
-                builder.command(command, "--create", "--database", "map-db", fileNameWithPath);
+                //builder.command(command, "--create", "--database", "map-db", fileNameWithPath);
+                builder.command("osm2pgsql", "--create", "--database", "map-db", fileNameWithPath);
 
 
             }

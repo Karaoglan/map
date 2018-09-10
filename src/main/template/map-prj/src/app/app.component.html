@@ -42,11 +42,20 @@
     <form>
       <div class="form-group">
         <br>
-        google all : {{numberOfGooglePlaces}} <br>
-        open all : {{numberOfOpenPlaces}}  <br>
-        open true : {{numberOfOpenPlaces - numberOfFalseOpen}}  <br>
-        open false : {{numberOfFalseOpen}} <br>
+        google Alle Places : {{numberOfGooglePlaces}} <br>
+        open Alle Places : {{numberOfOpenPlaces}}  <br>
+        open richtig Abgebildet : {{numberOfOpenPlaces - numberOfFalseOpen}}  <br>
+        open falsch Abgebildet : {{numberOfFalseOpen}} <br>
       </div>
+
+      <fusioncharts
+        [width]="width"
+        [height]="height"
+        [type]="type"
+        [dataFormat]="dataFormat"
+        [dataSource]="dataSourceGoogle">
+      </fusioncharts>
+
       <fusioncharts
         [width]="width"
         [height]="height"

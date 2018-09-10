@@ -41,11 +41,11 @@ public class StatisticHandlerImpl implements StatisticHandler {
             e.printStackTrace();
         }
 
-        Map<String, Double> geographicValueMap = radiusHandler.handle(rectangle);
+        Map<String, String> geographicValueMap = radiusHandler.handle(rectangle);
 
-        String lat = geographicValueMap.get(Const.LATITUDE).toString();
-        String lon = geographicValueMap.get(Const.LONGITUDE).toString();
-        double radius = geographicValueMap.get(Const.RADIUS);
+        String lat = geographicValueMap.get(Const.LATITUDE);
+        String lon = geographicValueMap.get(Const.LONGITUDE);
+        String radius = geographicValueMap.get(Const.RADIUS);
 
         int numOfGooglePlaces = 0;
         int numOfOpenstreetMapPlaces = 0;
